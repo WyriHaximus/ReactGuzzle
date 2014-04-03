@@ -11,6 +11,7 @@ use \React\EventLoop\LoopInterface;
 use \React\HttpClient\Client as HttpClient;
 use \React\HttpClient\Factory as HttpClientFactory;
 use \React\HttpClient\Response as HttpResponse;
+use \React\HttpClient\Request as HttpRequest;
 use \React\Promise\Deferred;
 
 
@@ -49,8 +50,22 @@ class HttpClientAdapter implements AdapterInterface {
 
     public function send(TransactionInterface $transaction) {
         $deferred = new Deferred();
-        $request = $this->httpClient->request($transaction->getRequest()->getMethod(), $transaction->getRequest()->getUrl(), $transaction->getRequest()->getHeaders());
+        $request = $this->setupRequest($transaction);
+        $this->setupListeners($request, $deferred);
+        $request->end();
+        return $deferred->promise();
+    }
 
+    protected function setupRequest(TransactionInterface $transaction) {
+        $request = $transaction->getRequest();
+        $headers = [];
+        foreach ($request->getHeaders() as $key => $values) {
+            $headers[$key] = $request->getHeader($key);
+        }
+        return $this->httpClient->request($request->getMethod(), $request->getUrl(), $headers);
+    }
+
+    protected function setupListeners(HttpRequest $request, Deferred $deferred) {
         $httpResponse = null;
         $buffer = '';
         $request->on('response', function(HttpResponse $response) use(&$httpResponse, &$buffer) {
@@ -60,10 +75,7 @@ class HttpClientAdapter implements AdapterInterface {
             });
         });
         $request->on('end', function() use(&$httpResponse, &$buffer, $deferred) {
-              $deferred->resolve($this->messageFactory->createResponse($httpResponse->getCode(), $httpResponse->getHeaders(), $buffer));
+            $deferred->resolve($this->messageFactory->createResponse($httpResponse->getCode(), $httpResponse->getHeaders(), $buffer));
         });
-        $request->end();
-
-        return $deferred->promise();
     }
 }
