@@ -1,26 +1,57 @@
 <?php
 
+/**
+ * This file is part of ReactGuzzle.
+ *
+ ** (c) 2014 Cees-Jan Kiewiet
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 namespace WyriHaximus\React\Guzzle;
 
-use \GuzzleHttp\Adapter\AdapterInterface;
-use \GuzzleHttp\Adapter\TransactionInterface;
-use \GuzzleHttp\Message\MessageFactory;
-use \React\Dns\Resolver as DnsResolver;
-use \React\Dns\Resolver\Factory as DnsFactory;
-use \React\EventLoop\LoopInterface;
-use \React\HttpClient\Client as HttpClient;
-use \React\HttpClient\Factory as HttpClientFactory;
-use \React\HttpClient\Response as HttpResponse;
-use \React\HttpClient\Request as HttpRequest;
-use \React\Promise\Deferred;
+use GuzzleHttp\Adapter\AdapterInterface;
+use GuzzleHttp\Adapter\TransactionInterface;
+use GuzzleHttp\Message\MessageFactory;
+use React\Dns\Resolver\Factory as DnsFactory;
+use React\Dns\Resolver as DnsResolver;
+use React\EventLoop\LoopInterface;
+use React\HttpClient\Client as HttpClient;
+use React\HttpClient\Factory as HttpClientFactory;
+use React\HttpClient\Request as HttpRequest;
+use React\HttpClient\Response as HttpResponse;
+use React\Promise\Deferred;
 
+/**
+ * Class HttpClientAdapter
+ *
+ * @package WyriHaximus\React\Guzzle
+ */
+class HttpClientAdapter implements AdapterInterface
+{
 
-class HttpClientAdapter implements AdapterInterface {
+    /**
+     * @var LoopInterface
+     */
+    protected $loop;
 
+    /**
+     * @var DnsResolver
+     */
     protected $dnsResolver;
+
+    /**
+     * @var HttpClient
+     */
     protected $httpClient;
 
-    public function __construct(LoopInterface $loop, HttpClient $httpClient = null, DnsResolver $dnsResolver = null) {
+    /**
+     * @param LoopInterface $loop
+     * @param HttpClient $httpClient
+     * @param DnsResolver $dnsResolver
+     */
+    public function __construct(LoopInterface $loop, HttpClient $httpClient = null, DnsResolver $dnsResolver = null)
+    {
         $this->loop = $loop;
         $this->messageFactory = new MessageFactory();
 
@@ -28,7 +59,11 @@ class HttpClientAdapter implements AdapterInterface {
         $this->setHttpClient($httpClient);
     }
 
-    public function setHttpClient(HttpClient $httpClient = null) {
+    /**
+     * @param HttpClient $httpClient
+     */
+    public function setHttpClient(HttpClient $httpClient = null)
+    {
         if (!($httpClient instanceof HttpClient)) {
             $this->setDnsResolver($this->dnsResolver);
 
@@ -39,7 +74,11 @@ class HttpClientAdapter implements AdapterInterface {
         $this->httpClient = $httpClient;
     }
 
-    public function setDnsResolver(DnsResolver $dnsResolver = null) {
+    /**
+     * @param DnsResolver $dnsResolver
+     */
+    public function setDnsResolver(DnsResolver $dnsResolver = null)
+    {
         if (!($dnsResolver instanceof DnsResolver)) {
             $dnsResolverFactory = new DnsFactory();
             $dnsResolver = $dnsResolverFactory->createCached('8.8.8.8', $this->loop);
@@ -48,7 +87,13 @@ class HttpClientAdapter implements AdapterInterface {
         $this->dnsResolver = $dnsResolver;
     }
 
-    public function send(TransactionInterface $transaction) {
+    /**
+     * @param TransactionInterface $transaction
+     *
+     * @return \React\Promise\Promise
+     */
+    public function send(TransactionInterface $transaction)
+    {
         $deferred = new Deferred();
         $request = $this->setupRequest($transaction);
         $this->setupListeners($request, $deferred);
@@ -56,7 +101,13 @@ class HttpClientAdapter implements AdapterInterface {
         return $deferred->promise();
     }
 
-    protected function setupRequest(TransactionInterface $transaction) {
+    /**
+     * @param TransactionInterface $transaction
+     *
+     * @return mixed
+     */
+    protected function setupRequest(TransactionInterface $transaction)
+    {
         $request = $transaction->getRequest();
         $headers = [];
         foreach ($request->getHeaders() as $key => $values) {
@@ -65,17 +116,42 @@ class HttpClientAdapter implements AdapterInterface {
         return $this->httpClient->request($request->getMethod(), $request->getUrl(), $headers);
     }
 
-    protected function setupListeners(HttpRequest $request, Deferred $deferred) {
+    /**
+     * @param HttpRequest $request
+     * @param Deferred $deferred
+     */
+    protected function setupListeners(HttpRequest $request, Deferred $deferred)
+    {
         $httpResponse = null;
         $buffer = '';
-        $request->on('response', function(HttpResponse $response) use(&$httpResponse, &$buffer) {
-            $httpResponse = $response;
-            $response->on('data', function($data) use(&$buffer) {
-                $buffer .= $data;
-            });
-        });
-        $request->on('end', function() use(&$httpResponse, &$buffer, $deferred) {
-            $deferred->resolve($this->messageFactory->createResponse($httpResponse->getCode(), $httpResponse->getHeaders(), $buffer));
-        });
+        $request->on(
+            'response',
+            function (HttpResponse $response) use (&$httpResponse, &$buffer) {
+                $httpResponse = $response;
+                $response->on(
+                    'data',
+                    function ($data) use (&$buffer) {
+                        $buffer .= $data;
+                    }
+                );
+            }
+        );
+        $request->on(
+            'error',
+            function ($error) use ($deferred) {
+                $deferred->reject($error);
+            }
+        );
+        $request->on(
+            'end',
+            function () use (&$httpResponse, &$buffer, $deferred) {
+                $response = $this->messageFactory->createResponse(
+                    $httpResponse->getCode(),
+                    $httpResponse->getHeaders(),
+                    $buffer
+                );
+                $deferred->resolve($response);
+            }
+        );
     }
 }
