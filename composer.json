@@ -12,9 +12,14 @@
         "guzzlehttp/guzzle": "4.0.*",
         "react/http-client": ">=0.3.0"
     },
+    "require-dev": {
+        "satooshi/php-coveralls": "~0.6",
+        "phpunit/phpunit": "4.0.*"
+    },
     "autoload": {
         "psr-4": {
-            "WyriHaximus\\React\\Guzzle\\": "src/"
+            "WyriHaximus\\React\\Guzzle\\": "src/",
+            "WyriHaximus\\React\\Tests\\Guzzle\\": "tests/"
         }
     }
 }
