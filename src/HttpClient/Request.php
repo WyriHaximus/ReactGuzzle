@@ -28,6 +28,11 @@ class Request
      * @var HttpClient
      */
     protected $httpClient;
+    
+    /**
+     * @var HttpResponse
+     */
+    protected $httpResponse;
 
     /**
      * @var string
@@ -130,15 +135,19 @@ class Request
     }
 
     protected function onError($error) {
-        $this->deferred->reject($error);
+        $this->error = $error;
     }
 
     protected function onEnd() {
-        $response = $this->messageFactory->createResponse(
-            $this->httpResponse->getCode(),
-            $this->httpResponse->getHeaders(),
-            $this->buffer
-        );
-        $this->deferred->resolve($response);
+		if ($this->httpResponse === null) {
+            $this->deferred->reject($this->error);
+        } else {
+            $response = $this->messageFactory->createResponse(
+                $this->httpResponse->getCode(),
+                $this->httpResponse->getHeaders(),
+                $this->buffer
+            );
+            $this->deferred->resolve($response);
+		}
     }
 }
