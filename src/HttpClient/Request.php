@@ -139,7 +139,7 @@ class Request
     }
 
     protected function onEnd() {
-		if ($this->httpResponse === null) {
+        if ($this->httpResponse === null) {
             $this->deferred->reject($this->error);
         } else {
             $response = $this->messageFactory->createResponse(
@@ -148,6 +148,6 @@ class Request
                 $this->buffer
             );
             $this->deferred->resolve($response);
-		}
+        }
     }
 }
