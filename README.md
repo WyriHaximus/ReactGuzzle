@@ -13,7 +13,20 @@ ReactPHP HttpClient Adapter for Guzzle
 
 This adapter is in active development and is subject to change at any given time. Untill 0.1.0 is tagged, use with caution!
 
-## Example ##
+
+## Installation ##
+
+Installation is easy with composer just add ReactGuzzle to your composer.json.
+
+```json
+{
+	"require": {
+		"wyrihaximus/react-guzzle": "dev-master"
+	}
+}
+```
+
+## Basic Usage ##
 
 ```php
 <?php
