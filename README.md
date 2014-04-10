@@ -1,6 +1,12 @@
 ReactHttpClientGuzzleAdapter
 ============================
 
+[![Build Status](https://travis-ci.org/WyriHaximus/ReactGuzzle.png)](https://travis-ci.org/WyriHaximus/ReactGuzzle)
+[![Latest Stable Version](https://poser.pugx.org/WyriHaximus/react-guzzle/v/stable.png)](https://packagist.org/packages/WyriHaximus/react-guzzle)
+[![Total Downloads](https://poser.pugx.org/WyriHaximus/react-guzzle/downloads.png)](https://packagist.org/packages/WyriHaximus/react-guzzle)
+[![Coverage Status](https://coveralls.io/repos/WyriHaximus/ReactGuzzle/badge.png)](https://coveralls.io/r/WyriHaximus/ReactGuzzle)
+[![License](https://poser.pugx.org/wyrihaximus/react-guzzle/license.png)](https://packagist.org/packages/wyrihaximus/react-guzzle)
+
 ReactPHP HttpClient Adapter for Guzzle
 
 ## Current state ##
@@ -27,5 +33,6 @@ $loop = \React\EventLoop\Factory::create();
     var_export($event);
 });
 
+$loop->run();
 
 ```
