@@ -17,7 +17,7 @@ use React\Dns\Resolver\Resolver as DnsResolver;
 use React\EventLoop\LoopInterface;
 use React\HttpClient\Client as HttpClient;
 use React\HttpClient\Factory as HttpClientFactory;
-use WyriHaximus\React\Guzzle\HttpClient\Request;
+use WyriHaximus\React\Guzzle\HttpClient\RequestFactory;
 
 /**
  * Class HttpClientAdapter
@@ -43,16 +43,22 @@ class HttpClientAdapter implements AdapterInterface
     protected $httpClient;
 
     /**
+     * @var RequestFactory
+     */
+    protected $requestFactory;
+
+    /**
      * @param LoopInterface $loop
      * @param HttpClient $httpClient
      * @param DnsResolver $dnsResolver
      */
-    public function __construct(LoopInterface $loop, HttpClient $httpClient = null, DnsResolver $dnsResolver = null)
+    public function __construct(LoopInterface $loop, HttpClient $httpClient = null, DnsResolver $dnsResolver = null, RequestFactory $requestFactory = null)
     {
         $this->loop = $loop;
 
         $this->setDnsResolver($dnsResolver);
         $this->setHttpClient($httpClient);
+        $this->setRequestFactory($requestFactory);
     }
 
     /**
@@ -84,6 +90,17 @@ class HttpClientAdapter implements AdapterInterface
     }
 
     /**
+     * @param RequestFactory $requestFactory
+     */
+    public function setRequestFactory(RequestFactory $requestFactory = null)  {
+        if (!($requestFactory instanceof RequestFactory)) {
+            $requestFactory = new RequestFactory();
+        }
+
+        $this->requestFactory = $requestFactory;
+    }
+
+    /**
      * @param TransactionInterface $transaction
      * @param array $options
      *
@@ -91,7 +108,6 @@ class HttpClientAdapter implements AdapterInterface
      */
     public function send(TransactionInterface $transaction, array $options = [])
     {
-        $request = new Request($this->httpClient);
-        return $request->send($transaction, $options);
+        return $this->requestFactory->create($this->httpClient)->send($transaction, $options);
     }
 }
