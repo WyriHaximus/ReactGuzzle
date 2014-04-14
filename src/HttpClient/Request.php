@@ -55,7 +55,7 @@ class Request
     public function send(TransactionInterface $transaction) {
         $this->deferred = new Deferred();
         $request = $this->setupRequest($transaction);
-        $this->setupListeners($request);
+        $this->setupListeners($request, $transaction);
         $request->end();
         return $this->deferred->promise();
     }
@@ -79,12 +79,12 @@ class Request
      * @param HttpRequest $request
      * @param Deferred $deferred
      */
-    protected function setupListeners(HttpRequest $request)
+    protected function setupListeners(HttpRequest $request, TransactionInterface $transaction)
     {
         $request->on(
             'response',
-            function (HttpResponse $response) {
-                $this->onResponse($response);
+            function (HttpResponse $response) use ($transaction) {
+                $this->onResponse($response, $transaction);
             }
         );
         $request->on(
@@ -101,11 +101,11 @@ class Request
         );
     }
 
-    protected function onResponse(HttpResponse $response) {
+    protected function onResponse(HttpResponse $response, TransactionInterface $transaction) {
         $response->on(
             'data',
-            function ($data) {
-                $this->onData($data);
+            function ($data) use ($transaction) {
+                $this->onData($data, $transaction);
             }
         );
 
@@ -117,8 +117,10 @@ class Request
         $this->httpResponse = $response;
     }
 
-    protected function onData($data) {
-        $this->buffer .= $data;
+    protected function onData($data, TransactionInterface $transaction) {
+        if (!$transaction->getRequest()->getConfig()['stream']) {
+            $this->buffer .= $data;
+        }
 
         $this->deferred->progress([
             'event' => 'data',
