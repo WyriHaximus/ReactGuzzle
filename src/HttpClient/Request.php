@@ -39,18 +39,12 @@ class Request
      */
     protected $buffer = '';
 
-    protected $options = [
-        'buffer' => false,
-    ];
-
     /**
      * @param HttpClient $httpClient
      */
-    public function __construct(ReactHttpClient $httpClient, array $options = []) {
+    public function __construct(ReactHttpClient $httpClient) {
         $this->httpClient = $httpClient;
         $this->messageFactory = new MessageFactory();
-
-        $this->options = array_merge($this->options, $options);
     }
 
     /**
@@ -124,9 +118,7 @@ class Request
     }
 
     protected function onData($data) {
-        if ($this->options['buffer']) {
-            $this->buffer .= $data;
-        }
+        $this->buffer .= $data;
 
         $this->deferred->progress([
             'event' => 'data',
