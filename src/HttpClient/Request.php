@@ -47,6 +47,16 @@ class Request
     protected $buffer = '';
 
     /**
+     * @var string
+     */
+    protected $error = '';
+    
+    /**
+     * @var null
+     */
+    protected $timer;
+
+    /**
      * @param HttpClient $httpClient
      */
     public function __construct(ReactHttpClient $httpClient, LoopInterface $loop) {
@@ -65,6 +75,7 @@ class Request
         $request = $this->setupRequest($transaction);
         $this->setupListeners($request, $transaction);
         $request->end();
+        $this->setTimeout($request, $transaction);
         return $this->deferred->promise();
     }
 
@@ -108,18 +119,26 @@ class Request
             }
         );
     }
+    
+    public function setTimeout(HttpRequest $request, TransactionInterface $transaction) {
+        if ($transaction->getRequest()->getConfig()['timeout']) {
+            $this->timer = $this->loop->addTimer($transaction->getRequest()->getConfig()['timeout'], function() use ($request) {
+                $request->close(new \Exception('Transaction time out'));
+            });
+        }
+    }
 
     protected function onResponse(HttpResponse $response, TransactionInterface $transaction) {
         $config = $transaction->getRequest()->getConfig();
-        if ($config['stream'] === false) {
+        if (!empty($config['save_to'])) {
+            $this->saveTo($response, $transaction);
+        } else {
             $response->on(
                 'data',
                 function ($data) use ($response, $transaction) {
                     $this->onData($data, $transaction);
                 }
             );
-        } else if (!empty($config['save_to'])) {
-            $this->saveTo($response, $transaction);
         }
 
         $this->deferred->progress([
@@ -163,6 +182,10 @@ class Request
     }
 
     protected function onEnd() {
+        if ($this->timer !== null) {
+            $this->loop->cancelTimer($this->timer);
+        }
+        
         if ($this->httpResponse === null) {
             $this->deferred->reject($this->error);
         } else {
