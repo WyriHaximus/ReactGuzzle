@@ -12,10 +12,12 @@ namespace WyriHaximus\React\Guzzle\HttpClient;
 
 use GuzzleHttp\Adapter\TransactionInterface;
 use GuzzleHttp\Message\MessageFactory;
+use React\EventLoop\LoopInterface;
 use React\HttpClient\Client as ReactHttpClient;
 use React\HttpClient\Request as HttpRequest;
 use React\HttpClient\Response as HttpResponse;
 use React\Promise\Deferred;
+use React\Stream\Stream;
 
 /**
  * Class Request
@@ -30,6 +32,11 @@ class Request
     protected $httpClient;
     
     /**
+     * @var LoopInterface
+     */
+    protected $loop;
+    
+    /**
      * @var HttpResponse
      */
     protected $httpResponse;
@@ -42,8 +49,9 @@ class Request
     /**
      * @param HttpClient $httpClient
      */
-    public function __construct(ReactHttpClient $httpClient) {
+    public function __construct(ReactHttpClient $httpClient, LoopInterface $loop) {
         $this->httpClient = $httpClient;
+        $this->loop = $loop;
         $this->messageFactory = new MessageFactory();
     }
 
@@ -102,12 +110,17 @@ class Request
     }
 
     protected function onResponse(HttpResponse $response, TransactionInterface $transaction) {
-        $response->on(
-            'data',
-            function ($data) use ($transaction) {
-                $this->onData($data, $transaction);
-            }
-        );
+        $config = $transaction->getRequest()->getConfig();
+        if ($config['stream'] === false) {
+            $response->on(
+                'data',
+                function ($data) use ($response, $transaction) {
+                    $this->onData($data, $transaction);
+                }
+            );
+        } else if (!empty($config['save_to'])) {
+            $this->saveTo($response, $transaction);
+        }
 
         $this->deferred->progress([
             'event' => 'response',
@@ -115,6 +128,23 @@ class Request
         ]);
 
         $this->httpResponse = $response;
+    }
+    
+    protected function saveTo(HttpResponse $response, TransactionInterface $transaction) {
+        $saveTo = $transaction->getRequest()->getConfig()['save_to'];
+
+        $writeStream = fopen($saveTo, 'w');
+        stream_set_blocking($writeStream, 0);
+        $saveToStream = new Stream($writeStream, $this->loop);
+        
+        $saveToStream->on(
+            'end',
+            function () {
+                $this->onEnd();
+            }
+        );
+        
+        $response->pipe($saveToStream);
     }
 
     protected function onData($data, TransactionInterface $transaction) {

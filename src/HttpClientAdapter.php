@@ -108,6 +108,6 @@ class HttpClientAdapter implements AdapterInterface
      */
     public function send(TransactionInterface $transaction, array $options = [])
     {
-        return $this->requestFactory->create($this->httpClient)->send($transaction, $options);
+        return $this->requestFactory->create($this->httpClient, $this->loop)->send($transaction, $options);
     }
 }
