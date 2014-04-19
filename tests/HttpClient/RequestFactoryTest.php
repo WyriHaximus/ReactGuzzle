@@ -35,7 +35,7 @@ class RequestFactoryTest extends \PHPUnit_Framework_TestCase {
         $this->assertInstanceOf('WyriHaximus\React\Guzzle\HttpClient\Request', $this->requestFactory->create($this->getMock('React\HttpClient\Client', [], [
             $this->getMock('React\SocketClient\ConnectorInterface'),
             $this->getMock('React\SocketClient\ConnectorInterface'),
-        ])));
+        ]), $this->getMock('\React\EventLoop\StreamSelectLoop')));
     }
     
 }

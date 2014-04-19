@@ -26,16 +26,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase {
             $this->getMock('React\SocketClient\ConnectorInterface'),
             $this->getMock('React\SocketClient\ConnectorInterface'),
         ]);
-        $this->request = new \WyriHaximus\React\Guzzle\HttpClient\Request($this->httpClient);
-    }
-    
-    public function tearDown() {
-        parent::tearDown();
+        $this->request = new \WyriHaximus\React\Guzzle\HttpClient\Request($this->httpClient, $this->getMock('\React\EventLoop\StreamSelectLoop'));
         
-        unset($this->httpClient, $this->request);
-    }
-
-    public function testSend() {
         $headersGuzzle = [
             'X-Guzzle' => [
                 'React',
@@ -119,18 +111,26 @@ class RequestTest extends \PHPUnit_Framework_TestCase {
             ->with('X-Guzzle')
             ->willReturn($headers['X-Guzzle']);
 
-        $transaction = $this->getMock('GuzzleHttp\Adapter\TransactionInterface', [
+        $this->transaction = $this->getMock('GuzzleHttp\Adapter\TransactionInterface', [
             'getRequest',
             'getResponse',
             'setResponse',
             'getClient',
         ]);
-        $transaction->expects($this->once())
+        $this->transaction->expects($this->any())
             ->method('getRequest')
             ->with()
             ->willReturn($request);
+    }
+    
+    public function tearDown() {
+        parent::tearDown();
+        
+        unset($this->httpClient, $this->request);
+    }
 
-        $this->request->send($transaction);
+    public function testSend() {
+        $this->request->send($this->transaction);
     }
     
 }

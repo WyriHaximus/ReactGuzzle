@@ -32,10 +32,10 @@ class HttpClientAdapterTest extends \PHPUnit_Framework_TestCase {
             'send',
         ], [
             $httpClient,
+            $this->loop,
         ]);
         $request->expects($this->once())
-            ->method('send')
-            ->willReturn($this->getMock('React\Promise\Deferred'));
+            ->method('send');
 
         $this->requestFactory->expects($this->once())
             ->method('create')
