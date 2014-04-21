@@ -20,13 +20,11 @@ class RequestTest extends \PHPUnit_Framework_TestCase {
     public function setUp() {
         parent::setUp();
 
-        $this->httpClient = $this->getMock('React\HttpClient\Client', [
-            'request',
-        ], [
-            $this->getMock('React\SocketClient\ConnectorInterface'),
-            $this->getMock('React\SocketClient\ConnectorInterface'),
+        $this->httpClient = \Mockery::mock('React\HttpClient\Client', [
+            \Mockery::mock('React\SocketClient\ConnectorInterface'),
+            \Mockery::mock('React\SocketClient\ConnectorInterface'),
         ]);
-        $this->request = new \WyriHaximus\React\Guzzle\HttpClient\Request($this->httpClient, $this->getMock('\React\EventLoop\StreamSelectLoop'));
+        $this->request = new \WyriHaximus\React\Guzzle\HttpClient\Request($this->httpClient, \Mockery::mock('\React\EventLoop\StreamSelectLoop'));
         
         $headersGuzzle = [
             'X-Guzzle' => [
@@ -42,85 +40,49 @@ class RequestTest extends \PHPUnit_Framework_TestCase {
 
         $deferred = new \React\Promise\Deferred();
 
-        $connector = $this->getMock('React\SocketClient\ConnectorInterface', [
-            'create',
-        ]);
-        $connector->expects($this->at(0))
-            ->method('create')
-            ->willReturn($deferred->promise());
+        $connector = \Mockery::mock('React\SocketClient\ConnectorInterface');
+        $connector->shouldReceive('create')
+            ->andReturn($deferred->promise());
 
-        $httpRequest = $this->getMock('React\HttpClient\Request', [
-                'trigger',
-            ], [
+        $httpRequest = \Mockery::mock('React\HttpClient\Request', [
             $connector,
-            $this->getMock('React\HttpClient\RequestData', [], [
+            \Mockery::mock('React\HttpClient\RequestData', [
                 $method,
                 $url,
                 $headers,
             ]),
         ]);
+        $httpRequest->shouldReceive('on');
+        $httpRequest->shouldReceive('end');
 
-        $this->httpClient->expects($this->once())
-            ->method('request')
+        $this->httpClient->shouldReceive('request')
             ->with($method, $url, $headers)
-            ->willReturn($httpRequest);
+            ->andReturn($httpRequest)
+            ->once();
 
-        $request = $this->getMock('GuzzleHttp\Message\RequestInterface', [
-            '__toString',
-            'setUrl',
-            'getUrl',
-            'getResource',
-            'getQuery',
-            'setQuery',
-            'getMethod',
-            'setMethod',
-            'getScheme',
-            'setScheme',
-            'getHost',
-            'setHost',
-            'getPath',
-            'setPath',
-            'getConfig',
-            'getProtocolVersion',
-            'setBody',
-            'getBody',
-            'getHeaders',
-            'getHeader',
-            'hasHeader',
-            'removeHeader',
-            'addHeader',
-            'addHeaders',
-            'setHeader',
-            'setHeaders',
-            'getEmitter',
-        ]);
-        $request->expects($this->once())
-            ->method('getHeaders')
+        $request = \Mockery::mock('GuzzleHttp\Message\RequestInterface');
+        $request->shouldReceive('getHeaders')
             ->with()
-            ->willReturn($headersGuzzle);
-        $request->expects($this->once())
-            ->method('getMethod')
+            ->andReturn($headersGuzzle)
+            ->once();
+        $request->shouldReceive('getMethod')
             ->with()
-            ->willReturn($method);
-        $request->expects($this->once())
-            ->method('getUrl')
+            ->andReturn($method)
+            ->once();
+        $request->shouldReceive('getUrl')
             ->with()
-            ->willReturn($url);
-        $request->expects($this->once())
-            ->method('getHeader')
+            ->andReturn($url)
+            ->once();
+        $request->shouldReceive('getHeader')
             ->with('X-Guzzle')
-            ->willReturn($headers['X-Guzzle']);
+            ->andReturn($headers['X-Guzzle'])
+            ->once();
+        $request->shouldReceive('getConfig');
 
-        $this->transaction = $this->getMock('GuzzleHttp\Adapter\TransactionInterface', [
-            'getRequest',
-            'getResponse',
-            'setResponse',
-            'getClient',
-        ]);
-        $this->transaction->expects($this->any())
-            ->method('getRequest')
+        $this->transaction = \Mockery::mock('GuzzleHttp\Adapter\TransactionInterface');
+        $this->transaction->shouldReceive('getRequest')
             ->with()
-            ->willReturn($request);
+            ->andReturn($request);
     }
     
     public function tearDown() {

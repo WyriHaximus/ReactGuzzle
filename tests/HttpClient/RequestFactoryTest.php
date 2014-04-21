@@ -32,10 +32,10 @@ class RequestFactoryTest extends \PHPUnit_Framework_TestCase {
     }
 
     public function testCreate() {
-        $this->assertInstanceOf('WyriHaximus\React\Guzzle\HttpClient\Request', $this->requestFactory->create($this->getMock('React\HttpClient\Client', [], [
-            $this->getMock('React\SocketClient\ConnectorInterface'),
-            $this->getMock('React\SocketClient\ConnectorInterface'),
-        ]), $this->getMock('\React\EventLoop\StreamSelectLoop')));
+        $this->assertInstanceOf('WyriHaximus\React\Guzzle\HttpClient\Request', $this->requestFactory->create(\Mockery::mock('React\HttpClient\Client', [
+            \Mockery::mock('React\SocketClient\ConnectorInterface'),
+            \Mockery::mock('React\SocketClient\ConnectorInterface'),
+        ]), \Mockery::mock('\React\EventLoop\StreamSelectLoop')));
     }
     
 }
