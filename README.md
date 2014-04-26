@@ -49,3 +49,5 @@ $loop = \React\EventLoop\Factory::create();
 $loop->run();
 
 ```
+
+See the examples directory for more ways to use this adapter.
