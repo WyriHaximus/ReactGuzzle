@@ -52,9 +52,37 @@ class HttpClientAdapterTest extends \PHPUnit_Framework_TestCase {
         $this->adapter->send(\Mockery::mock('GuzzleHttp\Adapter\TransactionInterface'));
     }
     
-    /*public function testSetDnsResolver() {
-        $this->adapter->shouldReceive('send')
-            ->with($this->dnsResolver);
-    }*/
+    public function testSetDnsResolver() {
+        $this->adapter->setDnsResolver();
+        $this->assertInstanceOf('React\Dns\Resolver\Resolver', $this->adapter->getDnsResolver());
+
+        $mock = $this->getMock('React\Dns\Resolver\Resolver', [], [
+            $this->getMock('React\Dns\Query\ExecutorInterface'),
+            $this->getMock('React\Dns\Query\ExecutorInterface'),
+        ]);
+        $this->adapter->setDnsResolver($mock);
+        $this->assertSame($mock, $this->adapter->getDnsResolver());
+    }
+
+    public function testSetHttpClient() {
+        $this->adapter->setHttpClient();
+        $this->assertInstanceOf('React\HttpClient\Client', $this->adapter->getHttpClient());
+
+        $mock = $this->getMock('React\HttpClient\Client', [], [
+                $this->getMock('React\SocketClient\ConnectorInterface'),
+                $this->getMock('React\SocketClient\ConnectorInterface'),
+            ]);
+        $this->adapter->setHttpClient($mock);
+        $this->assertSame($mock, $this->adapter->getHttpClient());
+    }
+
+    public function testSetRequestFactory() {
+        $this->adapter->setRequestFactory();
+        $this->assertInstanceOf('WyriHaximus\React\Guzzle\HttpClient\RequestFactory', $this->adapter->getRequestFactory());
+
+        $mock = $this->getMock('WyriHaximus\React\Guzzle\HttpClient\RequestFactory');
+        $this->adapter->setRequestFactory($mock);
+        $this->assertSame($mock, $this->adapter->getRequestFactory());
+    }
 
 }

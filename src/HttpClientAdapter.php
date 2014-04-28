@@ -77,6 +77,14 @@ class HttpClientAdapter implements AdapterInterface
     }
 
     /**
+     * @return HttpClient
+     */
+    public function getHttpClient()
+    {
+        return $this->httpClient;
+    }
+
+    /**
      * @param DnsResolver $dnsResolver
      */
     public function setDnsResolver(DnsResolver $dnsResolver = null)
@@ -90,14 +98,31 @@ class HttpClientAdapter implements AdapterInterface
     }
 
     /**
+     * @return DnsResolver
+     */
+    public function getDnsResolver()
+    {
+        return $this->dnsResolver;
+    }
+
+    /**
      * @param RequestFactory $requestFactory
      */
-    public function setRequestFactory(RequestFactory $requestFactory = null)  {
+    public function setRequestFactory(RequestFactory $requestFactory = null)
+    {
         if (!($requestFactory instanceof RequestFactory)) {
             $requestFactory = new RequestFactory();
         }
 
         $this->requestFactory = $requestFactory;
+    }
+
+    /**
+     * @return RequestFactory
+     */
+    public function getRequestFactory()
+    {
+        return $this->requestFactory;
     }
 
     /**
