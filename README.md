@@ -36,9 +36,10 @@ require dirname(__DIR__) . '/vendor/autoload.php';
 // Create eventloop
 $loop = \React\EventLoop\Factory::create();
 
-(new \GuzzleHttp\Client([
+$client = new \GuzzleHttp\Client([
     'adapter' => new \WyriHaximus\React\Guzzle\HttpClientAdapter($loop),
-]))->get('http://docs.guzzlephp.org/en/latest/')->then(function($event) { // Success callback
+]);
+$client->get('http://docs.guzzlephp.org/en/latest/')->then(function($event) { // Success callback
     var_export($event);
 }, function($event) { // Error callback
     var_export($event);
