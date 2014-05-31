@@ -1,5 +1,6 @@
 {
     "name": "wyrihaximus/react-guzzle",
+    "description": "Asyncronous Guzzle adapter powered by react/http-client",
     "license": "MIT",
     "authors": [
         {
