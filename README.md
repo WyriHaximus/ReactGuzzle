@@ -1,5 +1,5 @@
-ReactHttpClientGuzzleAdapter
-============================
+ReactGuzzle
+===========
 
 [![Build Status](https://travis-ci.org/WyriHaximus/ReactGuzzle.png)](https://travis-ci.org/WyriHaximus/ReactGuzzle)
 [![Latest Stable Version](https://poser.pugx.org/WyriHaximus/react-guzzle/v/stable.png)](https://packagist.org/packages/WyriHaximus/react-guzzle)
