@@ -20,7 +20,11 @@
     },
     "autoload": {
         "psr-4": {
-            "WyriHaximus\\React\\Guzzle\\": "src/",
+            "WyriHaximus\\React\\Guzzle\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
             "WyriHaximus\\React\\Tests\\Guzzle\\": "tests/"
         }
     }
