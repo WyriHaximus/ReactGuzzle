@@ -39,11 +39,11 @@ $loop = \React\EventLoop\Factory::create();
 $client = new \GuzzleHttp\Client([
     'adapter' => new \WyriHaximus\React\Guzzle\HttpClientAdapter($loop),
 ]);
-$client->get('http://docs.guzzlephp.org/en/latest/')->then(function($event) { // Success callback
-    var_export($event);
+$client->get('http://docs.guzzlephp.org/en/latest/')->then(function(\GuzzleHttp\Message\Response $response) { // Success callback
+    var_export($response);
 }, function($event) { // Error callback
     var_export($event);
-}, function($event) { // Progress callback
+}, function(array $event) { // Progress callback
     var_export($event);
 });
 
