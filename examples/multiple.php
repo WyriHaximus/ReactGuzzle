@@ -13,7 +13,7 @@ $guzzle->get('http://www.amazon.com/')->then(function(\GuzzleHttp\Message\Respon
     echo 'Amazon completed' . PHP_EOL;
 }, function($event) {
     echo 'Amazon error' . PHP_EOL;
-}, function(array $event) {
+}, function(\WyriHaximus\React\Guzzle\HttpClient\ProgressInterface $event) {
     echo 'Amazon progress: ' . $event['event'] . PHP_EOL;
 });
 
@@ -21,7 +21,7 @@ $guzzle->get('https://www.google.com/')->then(function(\GuzzleHttp\Message\Respo
     echo 'Google completed' . PHP_EOL;
 }, function($event) {
     echo 'Google error' . PHP_EOL;
-}, function(array $event) {
+}, function(\WyriHaximus\React\Guzzle\HttpClient\ProgressInterface $event) {
     echo 'Google progress: ' . $event['event'] . PHP_EOL;
 });
 
@@ -29,7 +29,7 @@ $guzzle->get('https://www.bing.com/')->then(function(\GuzzleHttp\Message\Respons
     echo 'Bing completed' . PHP_EOL;
 }, function($event) {
     echo 'Bing error' . PHP_EOL;
-}, function(array $event) {
+}, function(\WyriHaximus\React\Guzzle\HttpClient\ProgressInterface $event) {
     echo 'Bing progress: ' . $event['event'] . PHP_EOL;
 });
 
@@ -37,7 +37,7 @@ $guzzle->get('https://www.yahoo.com/')->then(function(\GuzzleHttp\Message\Respon
     echo 'Yahoo! completed' . PHP_EOL;
 }, function($event) {
     echo 'Yahoo! error' . PHP_EOL;
-}, function(array $event) {
+}, function(\WyriHaximus\React\Guzzle\HttpClient\ProgressInterface $event) {
     echo 'Yahoo! progress: ' . $event['event'] . PHP_EOL;
 });
 
@@ -45,7 +45,7 @@ $guzzle->get('https://www.duckduckgo.com/')->then(function(\GuzzleHttp\Message\R
     echo 'Duck Duck Go completed' . PHP_EOL;
 }, function($event) {
     echo 'Duck Duck Go error' . PHP_EOL;
-}, function(array $event) {
+}, function(\WyriHaximus\React\Guzzle\HttpClient\ProgressInterface $event) {
     echo 'Duck Duck Go progress: ' . $event['event'] . PHP_EOL;
 });
 

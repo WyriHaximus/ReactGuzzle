@@ -57,12 +57,23 @@ class Request
     protected $timer;
 
     /**
+     * @var Progress
+     */
+    protected $progress;
+
+    /**
      * @param HttpClient $httpClient
      */
-    public function __construct(ReactHttpClient $httpClient, LoopInterface $loop) {
+    public function __construct(ReactHttpClient $httpClient, LoopInterface $loop, ProgressInterface $progress = null) {
         $this->httpClient = $httpClient;
         $this->loop = $loop;
         $this->messageFactory = new MessageFactory();
+
+        if ($progress instanceof ProgressInterface) {
+            $this->progress = $progress;
+        } else {
+            $this->progress = new Progress();
+        }
     }
 
     /**
@@ -141,10 +152,7 @@ class Request
             );
         }
 
-        $this->deferred->progress([
-            'event' => 'response',
-            'response' => $response,
-        ]);
+        $this->deferred->progress($this->progress->setEvent('response')->onResponse($response));
 
         $this->httpResponse = $response;
     }
@@ -171,10 +179,7 @@ class Request
             $this->buffer .= $data;
         }
 
-        $this->deferred->progress([
-            'event' => 'data',
-            'data' => $data,
-        ]);
+        $this->deferred->progress($this->progress->setEvent('data')->onData($data));
     }
 
     protected function onError($error) {

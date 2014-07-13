@@ -43,7 +43,7 @@ $client->get('http://docs.guzzlephp.org/en/latest/')->then(function(\GuzzleHttp\
     var_export($response);
 }, function($event) { // Error callback
     var_export($event);
-}, function(array $event) { // Progress callback
+}, function(\WyriHaximus\React\Guzzle\HttpClient\Progress $event) { // Progress callback
     var_export($event);
 });
 

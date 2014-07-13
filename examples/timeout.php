@@ -13,7 +13,7 @@ $guzzle->get('http://www.amazon.com/', ['timeout' => 0.5])->then(function(\Guzzl
     echo 'Amazon completed' . PHP_EOL;
 }, function($event) {
     echo 'Amazon error' . PHP_EOL;
-}, function(array $event) {
+}, function(\WyriHaximus\React\Guzzle\HttpClient\ProgressInterface $event) {
     echo 'Amazon progress: ' . $event['event'] . PHP_EOL;
 });
 

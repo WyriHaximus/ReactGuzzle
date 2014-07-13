@@ -11,7 +11,7 @@ $loop = \React\EventLoop\Factory::create();
     echo 'Done!' . PHP_EOL;
 }, function($event) {
     echo 'Error: ' . var_export($event, true) . PHP_EOL;
-}, function(array $event) {
+}, function(\WyriHaximus\React\Guzzle\HttpClient\ProgressInterface $event) {
     echo 'Progress: '. $event['event'] . PHP_EOL;
 });
 

@@ -11,8 +11,8 @@ $loop = \React\EventLoop\Factory::create();
     var_export($response);
 }, function($event) { // Error callback
     var_export($event);
-}, function(array $event) { // Progress callback
-    var_export($event);
+}, function(\WyriHaximus\React\Guzzle\HttpClient\ProgressInterface $event) { // Progress callback
+    var_export($event['event']);
 });
 
 $loop->run();
