@@ -11,9 +11,8 @@
 namespace WyriHaximus\React\Tests\Guzzle\HttpClient;
 
 /**
- * Class Requesttest
- *
- * @package WyriHaximus\React\Tests\Guzzle
+ * Class RequestTest
+ * @package WyriHaximus\React\Tests\Guzzle\HttpClient
  */
 class RequestTest extends \PHPUnit_Framework_TestCase {
 
