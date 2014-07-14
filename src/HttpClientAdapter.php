@@ -131,8 +131,8 @@ class HttpClientAdapter implements AdapterInterface
      *
      * @return \React\Promise\Promise
      */
-    public function send(TransactionInterface $transaction, array $options = [])
+    public function send(TransactionInterface $transaction)
     {
-        return $this->requestFactory->create($this->httpClient, $this->loop)->send($transaction, $options);
+        return $this->requestFactory->create($this->httpClient, $this->loop)->send($transaction);
     }
 }
