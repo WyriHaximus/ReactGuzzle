@@ -33,17 +33,23 @@ Installation is easy with composer just add ReactGuzzle to your composer.json.
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-// Create eventloop
-$loop = \React\EventLoop\Factory::create();
+use GuzzleHttp\Client;
+use GuzzleHttp\Message\Response;
+use React\EventLoop\Factory;
+use WyriHaximus\React\Guzzle\HttpClientAdapter;
+use WyriHaximus\React\Guzzle\HttpClient\Progress;
 
-$client = new \GuzzleHttp\Client([
-    'adapter' => new \WyriHaximus\React\Guzzle\HttpClientAdapter($loop),
+// Create eventloop
+$loop = Factory::create();
+
+$client = new Client([
+    'adapter' => new HttpClientAdapter($loop),
 ]);
-$client->get('http://docs.guzzlephp.org/en/latest/')->then(function(\GuzzleHttp\Message\Response $response) { // Success callback
+$client->get('http://docs.guzzlephp.org/en/latest/')->then(function(Response $response) { // Success callback
     var_export($response);
 }, function($event) { // Error callback
     var_export($event);
-}, function(\WyriHaximus\React\Guzzle\HttpClient\Progress $event) { // Progress callback
+}, function(Progress $event) { // Progress callback
     var_export($event);
 });
 

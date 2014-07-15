@@ -2,16 +2,22 @@
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-// Create eventloop
-$loop = \React\EventLoop\Factory::create();
+use GuzzleHttp\Client;
+use GuzzleHttp\Message\Response;
+use React\EventLoop\Factory;
+use WyriHaximus\React\Guzzle\HttpClientAdapter;
+use WyriHaximus\React\Guzzle\HttpClient\ProgressInterface;
 
-(new \GuzzleHttp\Client([
-    'adapter' => new \WyriHaximus\React\Guzzle\HttpClientAdapter($loop),
-]))->get('http://www.google.com/robots.txt', ['save_to' => 'google-robots.txt'])->then(function(\GuzzleHttp\Message\Response $response) {
+// Create eventloop
+$loop = Factory::create();
+
+(new Client([
+    'adapter' => new HttpClientAdapter($loop),
+]))->get('http://www.google.com/robots.txt', ['save_to' => 'google-robots.txt'])->then(function(Response $response) {
     echo 'Done!' . PHP_EOL;
 }, function($event) {
     echo 'Error: ' . var_export($event, true) . PHP_EOL;
-}, function(\WyriHaximus\React\Guzzle\HttpClient\ProgressInterface $event) {
+}, function(ProgressInterface $event) {
     echo 'Progress: '. $event['event'] . PHP_EOL;
 });
 
