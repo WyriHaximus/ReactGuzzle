@@ -37,7 +37,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Message\Response;
 use React\EventLoop\Factory;
 use WyriHaximus\React\Guzzle\HttpClientAdapter;
-use WyriHaximus\React\Guzzle\HttpClient\Progress;
+use WyriHaximus\React\Guzzle\HttpClient\ProgressInterface;
 
 // Create eventloop
 $loop = Factory::create();
@@ -49,7 +49,7 @@ $client->get('http://docs.guzzlephp.org/en/latest/')->then(function(Response $re
     var_export($response);
 }, function($event) { // Error callback
     var_export($event);
-}, function(Progress $event) { // Progress callback
+}, function(ProgressInterface $event) { // Progress callback
     var_export($event);
 });
 
