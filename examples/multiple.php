@@ -15,44 +15,37 @@ $guzzle = new Client([
     'adapter' => new HttpClientAdapter($loop),
 ]);
 
-$guzzle->get('http://www.amazon.com/')->then(function(Response $response) {
-    echo 'Amazon completed' . PHP_EOL;
-}, function($event) {
-    echo 'Amazon error' . PHP_EOL;
-}, function(ProgressInterface $event) {
-    echo 'Amazon progress: ' . $event['event'] . PHP_EOL;
-});
+foreach ([
+    [
+        'name' => 'Amazon',
+        'url' => 'http://www.amazon.com/',
+    ],
+    [
+        'name' => 'Google',
+        'url' => 'http://www.google.com/',
+    ],
+    [
+        'name' => 'Google',
+        'url' => 'http://www.bing.com/',
+    ],
+    [
+        'name' => 'Yahoo!',
+        'url' => 'http://www.yahoo.com/',
+    ],
+    [
+        'name' => 'Duck Duck Go',
+        'url' => 'http://www.duckduckgo.com/',
+    ],
+] as $site) {
+    $name = $site['name'];
 
-$guzzle->get('https://www.google.com/')->then(function(Response $response) {
-    echo 'Google completed' . PHP_EOL;
-}, function($event) {
-    echo 'Google error' . PHP_EOL;
-}, function(ProgressInterface $event) {
-    echo 'Google progress: ' . $event['event'] . PHP_EOL;
-});
-
-$guzzle->get('https://www.bing.com/')->then(function(Response $response) {
-    echo 'Bing completed' . PHP_EOL;
-}, function($event) {
-    echo 'Bing error' . PHP_EOL;
-}, function(ProgressInterface $event) {
-    echo 'Bing progress: ' . $event['event'] . PHP_EOL;
-});
-
-$guzzle->get('https://www.yahoo.com/')->then(function(Response $response) {
-    echo 'Yahoo! completed' . PHP_EOL;
-}, function($event) {
-    echo 'Yahoo! error' . PHP_EOL;
-}, function(ProgressInterface $event) {
-    echo 'Yahoo! progress: ' . $event['event'] . PHP_EOL;
-});
-
-$guzzle->get('https://www.duckduckgo.com/')->then(function(Response $response) {
-    echo 'Duck Duck Go completed' . PHP_EOL;
-}, function($event) {
-    echo 'Duck Duck Go error' . PHP_EOL;
-}, function(ProgressInterface $event) {
-    echo 'Duck Duck Go progress: ' . $event['event'] . PHP_EOL;
-});
+    $guzzle->get($site['url'])->then(function(Response $response) use ($name) {
+        echo $name . ' completed' . PHP_EOL;
+    }, function($event) use ($name) {
+        echo $name . ' error' . PHP_EOL;
+    }, function(ProgressInterface $event) use ($name) {
+        echo $name . ' progress: ' . $event['event'] . PHP_EOL;
+    });
+}
 
 $loop->run();
