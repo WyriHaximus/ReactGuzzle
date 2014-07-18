@@ -17,16 +17,16 @@ $guzzle = new Client([
 
 foreach ([
     [
+        'name' => 'Nu',
+        'url' => 'http://www.nu.nl/',
+    ],
+    [
         'name' => 'Yahoo!',
         'url' => 'http://www.yahoo.com/',
     ],
     [
         'name' => 'Duck Duck Go',
         'url' => 'http://www.duckduckgo.com/',
-    ],
-    [
-        'name' => 'Nu',
-        'url' => 'http://www.nu.nl/',
     ],
 ] as $site) {
     $name = $site['name'];
