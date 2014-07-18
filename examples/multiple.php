@@ -44,7 +44,7 @@ foreach ([
     }, function($event) use ($name) {
         echo $name . ' error' . PHP_EOL;
     }, function(ProgressInterface $event) use ($name) {
-        echo $name . ' progress: ' . $event['event'] . PHP_EOL;
+        echo $name . ' progress: ' . number_format($event->getCompletePercentage(), 2) . '%' . PHP_EOL;
     });
 }
 
