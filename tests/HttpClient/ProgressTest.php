@@ -63,7 +63,7 @@ class ProgressTest extends \PHPUnit_Framework_TestCase {
         return [
             [
                 [],
-                0,
+                null,
             ],
             [
                 [
@@ -86,6 +86,88 @@ class ProgressTest extends \PHPUnit_Framework_TestCase {
         $this->progress->onResponse($httpResponse);
         $this->assertSame($httpResponse, $this->progress['response']);
         $this->assertSame($expectedLength, $this->progress['fullSize']);
+    }
+
+    public function isFullSizeKnownProvider() {
+        return [
+            [
+                true,
+                [
+                    'Content-Length' => 123,
+                ],
+            ],
+            [
+                true,
+                [
+                    'Content-Length' => 0,
+                ],
+            ],
+            [
+                false,
+                [],
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider isFullSizeKnownProvider
+     */
+    public function testIsFullSizeKnown($expectedResult, $headers) {
+        $response = \Mockery::mock('React\HttpClient\Response');
+
+        $response->shouldReceive('getHeaders')
+            ->with()
+            ->andReturn($headers)
+            ->once();
+        $this->progress->onResponse($response);
+        $this->assertSame($expectedResult, $this->progress->isFullSizeKnown());
+    }
+
+    public function getCompletePercentageProvider() {
+        return [
+            [
+                '0',
+                [],
+                '',
+            ],
+            [
+                '50',
+                [
+                    'Content-Length' => 2,
+                ],
+                'a'
+            ],
+            [
+                '33.33',
+                [
+                    'Content-Length' => 3,
+                ],
+                'a'
+            ],
+            [
+                '100',
+                [
+                    'Content-Length' => 3,
+                ],
+                'abc'
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider getCompletePercentageProvider
+     */
+    public function testGetCompletePercentage($expectedResult, $headers, $dataChunk) {
+        $response = \Mockery::mock('React\HttpClient\Response');
+
+        $response->shouldReceive('getHeaders')
+            ->with()
+            ->andReturn($headers)
+            ->once();
+        $this->assertSame($expectedResult, substr($this->progress
+                ->onResponse($response)
+                ->onData($dataChunk)
+                ->getCompletePercentage(), 0, 5));
     }
 
 }

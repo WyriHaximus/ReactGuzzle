@@ -19,11 +19,29 @@ use React\HttpClient\Response as HttpResponse;
 class Progress implements ProgressInterface, \ArrayAccess
 {
     private $currentSize = 0;
-    private $fullSize = 0;
+    private $fullSize;
     private $response;
     private $data;
     private $event;
 
+    /**
+     * @return bool
+     */
+    public function isFullSizeKnown() {
+        return !($this->fullSize === null);
+    }
+
+    /**
+     * @return float|int
+     */
+    public function getCompletePercentage() {
+        if (!$this->isFullSizeKnown() || $this->currentSize == 0) {
+            return 0;
+        }
+
+        $bit = $this->fullSize / 100;
+        return $this->currentSize / $bit;
+    }
 
     /**
      * @param $eventName
