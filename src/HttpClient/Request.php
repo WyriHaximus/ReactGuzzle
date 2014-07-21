@@ -11,6 +11,7 @@
 namespace WyriHaximus\React\Guzzle\HttpClient;
 
 use GuzzleHttp\Adapter\TransactionInterface;
+use GuzzleHttp\Event\RequestEvents;
 use GuzzleHttp\Message\MessageFactory;
 use React\EventLoop\LoopInterface;
 use React\HttpClient\Client as ReactHttpClient;
@@ -82,11 +83,15 @@ class Request
      * @return \React\Promise\Promise
      */
     public function send(TransactionInterface $transaction) {
+        RequestEvents::emitBefore($transaction);
         $this->deferred = new Deferred();
+
         $request = $this->setupRequest($transaction);
         $this->setupListeners($request, $transaction);
+
         $request->end();
         $this->setTimeout($request, $transaction);
+
         return $this->deferred->promise();
     }
 
@@ -125,8 +130,8 @@ class Request
         );
         $request->on(
             'end',
-            function () {
-                $this->onEnd();
+            function () use ($transaction) {
+                $this->onEnd($transaction);
             }
         );
     }
@@ -166,8 +171,8 @@ class Request
         
         $saveToStream->on(
             'end',
-            function () {
-                $this->onEnd();
+            function () use ($transaction) {
+                $this->onEnd($transaction);
             }
         );
         
@@ -186,7 +191,7 @@ class Request
         $this->error = $error;
     }
 
-    protected function onEnd() {
+    protected function onEnd(TransactionInterface $transaction) {
         if ($this->timer !== null) {
             $this->loop->cancelTimer($this->timer);
         }
@@ -199,6 +204,7 @@ class Request
                 $this->httpResponse->getHeaders(),
                 $this->buffer
             );
+            //RequestEvents::emitComplete($transaction);
             $this->deferred->resolve($response);
         }
     }

@@ -77,6 +77,12 @@ class RequestTest extends \PHPUnit_Framework_TestCase {
             ->andReturn($headers['X-Guzzle'])
             ->once();
         $request->shouldReceive('getConfig');
+        $emitter = \Mockery::mock('GuzzleHttp\Event\EmitterInterface');
+        $emitter->shouldReceive('emit');
+        $request->shouldReceive('getEmitter')
+            ->with()
+            ->andReturn($emitter)
+            ->once();
 
         $this->transaction = \Mockery::mock('GuzzleHttp\Adapter\TransactionInterface');
         $this->transaction->shouldReceive('getRequest')
