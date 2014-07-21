@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "9ac0c21490a251519a07b72b273c59a5",
+    "hash": "cad3f79ea12053fe6b30932fe6187749",
     "packages": [
         {
             "name": "evenement/evenement",
@@ -656,6 +656,52 @@
         }
     ],
     "packages-dev": [
+        {
+            "name": "guzzlehttp/oauth-subscriber",
+            "version": "0.1.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/guzzle/oauth-subscriber.git",
+                "reference": "f5e857b5ab34279611c171111c40000435299698"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/guzzle/oauth-subscriber/zipball/f5e857b5ab34279611c171111c40000435299698",
+                "reference": "f5e857b5ab34279611c171111c40000435299698",
+                "shasum": ""
+            },
+            "require": {
+                "guzzlehttp/guzzle": "~4.0",
+                "php": ">=5.4.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~4.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "GuzzleHttp\\Subscriber\\Oauth\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Michael Dowling",
+                    "email": "mtdowling@gmail.com",
+                    "homepage": "https://github.com/mtdowling"
+                }
+            ],
+            "description": "Guzzle OAuth 1.0 subscriber",
+            "homepage": "http://guzzlephp.org/",
+            "keywords": [
+                "Guzzle",
+                "oauth"
+            ],
+            "time": "2014-05-20 00:04:02"
+        },
         {
             "name": "mockery/mockery",
             "version": "0.9.1",
