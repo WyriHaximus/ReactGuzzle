@@ -16,8 +16,10 @@
     "require-dev": {
         "satooshi/php-coveralls": "~0.6",
         "phpunit/phpunit": "~4.0",
-        "mockery/mockery": "~0.9",
-        "guzzlehttp/oauth-subscriber": "0.1.*"
+        "mockery/mockery": "~0.9"
+    },
+    "suggest": {
+        "guzzlehttp/oauth-subscriber": "0.1.* needed for oauth example"
     },
     "autoload": {
         "psr-4": {
