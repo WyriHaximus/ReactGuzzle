@@ -19,11 +19,20 @@ class RequestTest extends \PHPUnit_Framework_TestCase {
     public function setUp() {
         parent::setUp();
 
+        $loop = \Mockery::mock('\React\EventLoop\StreamSelectLoop');
+        $loop->shouldReceive('nextTick')
+            ->withAnyArgs()
+            ->atLeast(2)
+            ->andReturn(\Mockery::on(function($callback) {
+                $callback();
+                return null;
+            }));
+
         $this->httpClient = \Mockery::mock('React\HttpClient\Client', [
             \Mockery::mock('React\SocketClient\ConnectorInterface'),
             \Mockery::mock('React\SocketClient\ConnectorInterface'),
         ]);
-        $this->request = new \WyriHaximus\React\Guzzle\HttpClient\Request($this->httpClient, \Mockery::mock('\React\EventLoop\StreamSelectLoop'));
+        $this->request = new \WyriHaximus\React\Guzzle\HttpClient\Request($this->httpClient, $loop);
         
         $headersGuzzle = [
             'X-Guzzle' => [

@@ -63,6 +63,11 @@ class Request
     protected $progress;
 
     /**
+     * @var TransactionInterface
+     */
+    protected $transaction;
+
+    /**
      * @param HttpClient $httpClient
      */
     public function __construct(ReactHttpClient $httpClient, LoopInterface $loop, ProgressInterface $progress = null) {
@@ -83,26 +88,28 @@ class Request
      * @return \React\Promise\Promise
      */
     public function send(TransactionInterface $transaction) {
-        RequestEvents::emitBefore($transaction);
+        $this->transaction = $transaction;
         $this->deferred = new Deferred();
 
-        $request = $this->setupRequest($transaction);
-        $this->setupListeners($request, $transaction);
+        $this->loop->nextTick(function() {
+            RequestEvents::emitBefore($this->transaction);
 
-        $request->end();
-        $this->setTimeout($request, $transaction);
+            $request = $this->setupRequest($this->transaction);
+            $this->setupListeners($request, $this->transaction);
+
+            $request->end();
+            $this->setTimeout($request, $this->transaction);
+        });
 
         return $this->deferred->promise();
     }
 
     /**
-     * @param TransactionInterface $transaction
-     *
      * @return mixed
      */
-    protected function setupRequest(TransactionInterface $transaction)
+    protected function setupRequest()
     {
-        $request = $transaction->getRequest();
+        $request = $this->transaction->getRequest();
         $headers = [];
         foreach ($request->getHeaders() as $key => $values) {
             $headers[$key] = $request->getHeader($key);
@@ -114,12 +121,12 @@ class Request
      * @param HttpRequest $request
      * @param Deferred $deferred
      */
-    protected function setupListeners(HttpRequest $request, TransactionInterface $transaction)
+    protected function setupListeners(HttpRequest $request)
     {
         $request->on(
             'response',
-            function (HttpResponse $response) use ($transaction) {
-                $this->onResponse($response, $transaction);
+            function (HttpResponse $response) {
+                $this->onResponse($response);
             }
         );
         $request->on(
@@ -130,29 +137,29 @@ class Request
         );
         $request->on(
             'end',
-            function () use ($transaction) {
-                $this->onEnd($transaction);
+            function () {
+                $this->onEnd();
             }
         );
     }
     
-    public function setTimeout(HttpRequest $request, TransactionInterface $transaction) {
-        if ($transaction->getRequest()->getConfig()['timeout']) {
-            $this->timer = $this->loop->addTimer($transaction->getRequest()->getConfig()['timeout'], function() use ($request) {
+    public function setTimeout(HttpRequest $request) {
+        if ($this->transaction->getRequest()->getConfig()['timeout']) {
+            $this->timer = $this->loop->addTimer($this->transaction->getRequest()->getConfig()['timeout'], function() use ($request) {
                 $request->close(new \Exception('Transaction time out'));
             });
         }
     }
 
-    protected function onResponse(HttpResponse $response, TransactionInterface $transaction) {
-        $config = $transaction->getRequest()->getConfig();
+    protected function onResponse(HttpResponse $response) {
+        $config = $this->transaction->getRequest()->getConfig();
         if (!empty($config['save_to'])) {
-            $this->saveTo($response, $transaction);
+            $this->saveTo($response);
         } else {
             $response->on(
                 'data',
-                function ($data) use ($response, $transaction) {
-                    $this->onData($data, $transaction);
+                function ($data) use ($response) {
+                    $this->onData($data);
                 }
             );
         }
@@ -162,8 +169,8 @@ class Request
         $this->httpResponse = $response;
     }
     
-    protected function saveTo(HttpResponse $response, TransactionInterface $transaction) {
-        $saveTo = $transaction->getRequest()->getConfig()['save_to'];
+    protected function saveTo(HttpResponse $response) {
+        $saveTo = $this->transaction->getRequest()->getConfig()['save_to'];
 
         $writeStream = fopen($saveTo, 'w');
         stream_set_blocking($writeStream, 0);
@@ -171,16 +178,16 @@ class Request
         
         $saveToStream->on(
             'end',
-            function () use ($transaction) {
-                $this->onEnd($transaction);
+            function () {
+                $this->onEnd();
             }
         );
         
         $response->pipe($saveToStream);
     }
 
-    protected function onData($data, TransactionInterface $transaction) {
-        if (!$transaction->getRequest()->getConfig()['stream']) {
+    protected function onData($data) {
+        if (!$this->transaction->getRequest()->getConfig()['stream']) {
             $this->buffer .= $data;
         }
 
@@ -191,7 +198,7 @@ class Request
         $this->error = $error;
     }
 
-    protected function onEnd(TransactionInterface $transaction) {
+    protected function onEnd() {
         if ($this->timer !== null) {
             $this->loop->cancelTimer($this->timer);
         }
@@ -204,8 +211,12 @@ class Request
                 $this->httpResponse->getHeaders(),
                 $this->buffer
             );
-            //RequestEvents::emitComplete($transaction);
-            $this->deferred->resolve($response);
+
+
+            $this->loop->nextTick(function() use ($response) {
+                //RequestEvents::emitComplete($transaction);
+                $this->deferred->resolve($response);
+            });
         }
     }
 }
