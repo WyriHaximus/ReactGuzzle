@@ -214,7 +214,7 @@ class Request
 
 
             $this->loop->nextTick(function() use ($response) {
-                //RequestEvents::emitComplete($transaction);
+                RequestEvents::emitComplete($this->transaction);
                 $this->deferred->resolve($response);
             });
         }
