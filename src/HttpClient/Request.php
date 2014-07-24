@@ -211,7 +211,7 @@ class Request
                 $this->httpResponse->getHeaders(),
                 $this->buffer
             );
-
+            $this->transaction->setResponse($response);
 
             $this->loop->nextTick(function() use ($response) {
                 RequestEvents::emitComplete($this->transaction);
