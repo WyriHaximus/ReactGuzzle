@@ -105,7 +105,7 @@ class Request
     }
 
     /**
-     * @return mixed
+     * @return HttpRequest mixed
      */
     protected function setupRequest()
     {
@@ -142,7 +142,10 @@ class Request
             }
         );
     }
-    
+
+    /**
+     * @param HttpRequest $request
+     */
     public function setTimeout(HttpRequest $request) {
         if ($this->transaction->getRequest()->getConfig()['timeout']) {
             $this->timer = $this->loop->addTimer($this->transaction->getRequest()->getConfig()['timeout'], function() use ($request) {
@@ -151,6 +154,9 @@ class Request
         }
     }
 
+    /**
+     * @param HttpResponse $response
+     */
     protected function onResponse(HttpResponse $response) {
         $config = $this->transaction->getRequest()->getConfig();
         if (!empty($config['save_to'])) {
@@ -168,7 +174,10 @@ class Request
 
         $this->httpResponse = $response;
     }
-    
+
+    /**
+     * @param HttpResponse $response
+     */
     protected function saveTo(HttpResponse $response) {
         $saveTo = $this->transaction->getRequest()->getConfig()['save_to'];
 
@@ -186,6 +195,9 @@ class Request
         $response->pipe($saveToStream);
     }
 
+    /**
+     * @param string $data
+     */
     protected function onData($data) {
         if (!$this->transaction->getRequest()->getConfig()['stream']) {
             $this->buffer .= $data;
@@ -194,10 +206,16 @@ class Request
         $this->deferred->progress($this->progress->setEvent('data')->onData($data));
     }
 
-    protected function onError($error) {
+    /**
+     * @param \Exception $error
+     */
+    protected function onError(\Exception $error) {
         $this->error = $error;
     }
 
+    /**
+     *
+     */
     protected function onEnd() {
         if ($this->timer !== null) {
             $this->loop->cancelTimer($this->timer);
