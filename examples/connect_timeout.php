@@ -15,7 +15,7 @@ $guzzle = new Client([
     'adapter' => new HttpClientAdapter($loop),
 ]);
 
-$guzzle->get('http://www.amazon.com/', ['connect_timeout' => 0.5])->then(function(Response $response) {
+$guzzle->get('http://www.amazon.com/', ['connect_timeout' => 0.001])->then(function(Response $response) {
     echo 'Amazon completed, we really shouldn\'t get getting here...' . PHP_EOL;
 }, function($event) {
     echo 'Amazon error' . PHP_EOL;
