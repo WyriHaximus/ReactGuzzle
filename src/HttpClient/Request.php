@@ -55,7 +55,12 @@ class Request
     /**
      * @var null
      */
-    protected $timer;
+    protected $connectionTimer;
+
+    /**
+     * @var null
+     */
+    protected $requestTimer;
 
     /**
      * @var Progress
@@ -66,6 +71,11 @@ class Request
      * @var TransactionInterface
      */
     protected $transaction;
+
+    /**
+     * @var bool
+     */
+    protected $connectionTimedOut = false;
 
     /**
      * @param HttpClient $httpClient
@@ -97,8 +107,9 @@ class Request
             $request = $this->setupRequest($this->transaction);
             $this->setupListeners($request, $this->transaction);
 
+            $this->setConnectionTimeout($request);
             $request->end();
-            $this->setTimeout($request, $this->transaction);
+            $this->setRequestTimeout($request, $this->transaction);
         });
 
         return $this->deferred->promise();
@@ -124,6 +135,12 @@ class Request
     protected function setupListeners(HttpRequest $request)
     {
         $request->on(
+            'headers-written',
+            function () {
+                $this->onHeadersWritten();
+            }
+        );
+        $request->on(
             'response',
             function (HttpResponse $response) {
                 $this->onResponse($response);
@@ -146,11 +163,28 @@ class Request
     /**
      * @param HttpRequest $request
      */
-    public function setTimeout(HttpRequest $request) {
+    public function setConnectionTimeout(HttpRequest $request) {
+        if ($this->transaction->getRequest()->getConfig()['connect_timeout']) {
+            $this->connectionTimer = $this->loop->addTimer($this->transaction->getRequest()->getConfig()['connect_timeout'], function() use ($request) {
+                $request->closeError(new \Exception('Connection time out'));
+            });
+        }
+    }
+
+    /**
+     * @param HttpRequest $request
+     */
+    public function setRequestTimeout(HttpRequest $request) {
         if ($this->transaction->getRequest()->getConfig()['timeout']) {
-            $this->timer = $this->loop->addTimer($this->transaction->getRequest()->getConfig()['timeout'], function() use ($request) {
+            $this->requestTimer = $this->loop->addTimer($this->transaction->getRequest()->getConfig()['timeout'], function() use ($request) {
                 $request->close(new \Exception('Transaction time out'));
             });
+        }
+    }
+
+    protected function onHeadersWritten() {
+        if ($this->connectionTimer !== null) {
+            $this->loop->cancelTimer($this->connectionTimer);
         }
     }
 
@@ -217,8 +251,8 @@ class Request
      *
      */
     protected function onEnd() {
-        if ($this->timer !== null) {
-            $this->loop->cancelTimer($this->timer);
+        if ($this->requestTimer !== null) {
+            $this->loop->cancelTimer($this->requestTimer);
         }
         
         if ($this->httpResponse === null) {
