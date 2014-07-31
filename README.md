@@ -57,7 +57,7 @@ $loop->run();
 
 ```
 
-See the examples directory for more ways to use this adapter.
+See the [examples](https://github.com/WyriHaximus/ReactGuzzle/tree/master/examples) directory for more ways to use this adapter.
 
 ## License ##
 
