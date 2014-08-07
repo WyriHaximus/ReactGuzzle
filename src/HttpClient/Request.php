@@ -136,8 +136,8 @@ class Request
     {
         $request->on(
             'headers-written',
-            function () {
-                $this->onHeadersWritten();
+            function () use ($request) {
+                $this->onHeadersWritten($request);
             }
         );
         $request->on(
@@ -182,9 +182,14 @@ class Request
         }
     }
 
-    protected function onHeadersWritten() {
+    protected function onHeadersWritten(HttpRequest $request) {
         if ($this->connectionTimer !== null) {
             $this->loop->cancelTimer($this->connectionTimer);
+        }
+
+        $body = (string)$this->transaction->getRequest()->getBody();
+        if (strlen($body) > 0) {
+            $request->write($body);
         }
     }
 
