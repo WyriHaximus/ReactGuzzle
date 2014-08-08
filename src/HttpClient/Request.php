@@ -108,7 +108,7 @@ class Request
             $this->setupListeners($request, $this->transaction);
 
             $this->setConnectionTimeout($request);
-            $request->end();
+            $request->end((string)$this->transaction->getRequest()->getBody());
             $this->setRequestTimeout($request, $this->transaction);
         });
 
@@ -136,8 +136,8 @@ class Request
     {
         $request->on(
             'headers-written',
-            function () use ($request) {
-                $this->onHeadersWritten($request);
+            function () {
+                $this->onHeadersWritten();
             }
         );
         $request->on(
@@ -182,14 +182,9 @@ class Request
         }
     }
 
-    protected function onHeadersWritten(HttpRequest $request) {
+    protected function onHeadersWritten() {
         if ($this->connectionTimer !== null) {
             $this->loop->cancelTimer($this->connectionTimer);
-        }
-
-        $body = (string)$this->transaction->getRequest()->getBody();
-        if (strlen($body) > 0) {
-            $request->write($body);
         }
     }
 
