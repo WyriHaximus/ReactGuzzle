@@ -266,8 +266,12 @@ class Request
             $this->transaction->setResponse($response);
 
             $this->loop->nextTick(function() use ($response) {
-                RequestEvents::emitComplete($this->transaction);
-                $this->deferred->resolve($response);
+                try {
+                    RequestEvents::emitComplete($this->transaction);
+                    $this->deferred->resolve($response);
+                } catch(\Exception $exception) {
+                    $this->deferred->reject($exception);
+                }
             });
         }
     }
