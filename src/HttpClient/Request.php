@@ -78,7 +78,7 @@ class Request
     protected $connectionTimedOut = false;
 
     /**
-     * @param HttpClient $httpClient
+     * @param ReactHttpClient $httpClient
      */
     public function __construct(ReactHttpClient $httpClient, LoopInterface $loop, ProgressInterface $progress = null) {
         $this->httpClient = $httpClient;
@@ -130,7 +130,6 @@ class Request
 
     /**
      * @param HttpRequest $request
-     * @param Deferred $deferred
      */
     protected function setupListeners(HttpRequest $request)
     {
