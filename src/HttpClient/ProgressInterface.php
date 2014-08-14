@@ -19,7 +19,18 @@ use React\HttpClient\Response as HttpResponse;
  */
 interface ProgressInterface
 {
+    /**
+     * @return Progress
+     */
     public function setEvent($eventName);
+
+    /**
+     * @return Progress
+     */
     public function onResponse(HttpResponse $response);
+
+    /**
+     * @return Progress
+     */
     public function onData($data);
 }

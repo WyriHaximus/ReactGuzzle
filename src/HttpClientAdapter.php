@@ -127,7 +127,6 @@ class HttpClientAdapter implements AdapterInterface
 
     /**
      * @param TransactionInterface $transaction
-     * @param array $options
      *
      * @return \React\Promise\Promise
      */
