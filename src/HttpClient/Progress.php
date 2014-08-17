@@ -68,7 +68,7 @@ class Progress implements ProgressInterface, \ArrayAccess
     }
 
     /**
-     * @param $data
+     * @param string $data
      * @return $this
      */
     public function onData($data) {
