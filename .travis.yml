@@ -11,10 +11,6 @@ matrix:
   allow_failures:
     - php: hhvm-nightly
 
-branches:
-  only:
-    - master
-
 before_script:
   - composer self-update
   - composer install
