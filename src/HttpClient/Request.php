@@ -132,7 +132,6 @@ class Request
 
     /**
      * @param HttpRequest $request
-     * @param Deferred $deferred
      */
     protected function setupListeners(HttpRequest $request)
     {
