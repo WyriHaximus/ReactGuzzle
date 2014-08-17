@@ -28,7 +28,7 @@ use React\Stream\Stream;
 class Request
 {
     /**
-     * @var HttpClient
+     * @var ReactHttpClient
      */
     protected $httpClient;
     
@@ -43,29 +43,39 @@ class Request
     protected $httpResponse;
 
     /**
+     * @var MessageFactory
+     */
+    protected $messageFactory;
+
+    /**
      * @var string
      */
     protected $buffer = '';
 
     /**
-     * @var string
+     * @var \Exception
      */
     protected $error = '';
     
     /**
-     * @var null
+     * @var null|React\EventLoop\Timer\TimerInterface
      */
     protected $connectionTimer;
 
     /**
-     * @var null
+     * @var null|React\EventLoop\Timer\TimerInterface
      */
     protected $requestTimer;
 
     /**
-     * @var Progress
+     * @var ProgressInterface
      */
     protected $progress;
+
+    /**
+     * @var Deferred
+     */
+    protected $deferred;
 
     /**
      * @var TransactionInterface
@@ -106,12 +116,12 @@ class Request
         $this->loop->nextTick(function() {
             RequestEvents::emitBefore($this->transaction);
 
-            $request = $this->setupRequest($this->transaction);
-            $this->setupListeners($request, $this->transaction);
+            $request = $this->setupRequest();
+            $this->setupListeners($request);
 
             $this->setConnectionTimeout($request);
             $request->end((string)$this->transaction->getRequest()->getBody());
-            $this->setRequestTimeout($request, $this->transaction);
+            $this->setRequestTimeout($request);
         });
 
         return $this->deferred->promise();
@@ -132,7 +142,6 @@ class Request
 
     /**
      * @param HttpRequest $request
-     * @param Deferred $deferred
      */
     protected function setupListeners(HttpRequest $request)
     {
