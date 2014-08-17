@@ -58,12 +58,12 @@ class Request
     protected $error = '';
     
     /**
-     * @var React\EventLoop\Timer\TimerInterface
+     * @var \React\EventLoop\Timer\TimerInterface
      */
     protected $connectionTimer;
 
     /**
-     * @var React\EventLoop\Timer\TimerInterface
+     * @var \React\EventLoop\Timer\TimerInterface
      */
     protected $requestTimer;
 
