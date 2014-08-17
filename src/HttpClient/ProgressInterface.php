@@ -20,6 +20,7 @@ use React\HttpClient\Response as HttpResponse;
 interface ProgressInterface
 {
     /**
+     * @param string $eventName
      * @return Progress
      */
     public function setEvent($eventName);
