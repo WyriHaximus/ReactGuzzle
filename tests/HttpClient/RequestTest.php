@@ -20,7 +20,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase {
         parent::setUp();
 
         $loop = \Mockery::mock('\React\EventLoop\StreamSelectLoop');
-        $loop->shouldReceive('nextTick')
+        $loop->shouldReceive('futureTick')
             ->withAnyArgs()
             ->atLeast(2)
             ->andReturn(\Mockery::on(function($callback) {

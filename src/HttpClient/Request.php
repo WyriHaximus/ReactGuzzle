@@ -113,7 +113,7 @@ class Request
         $this->transaction = $transaction;
         $this->deferred = new Deferred();
 
-        $this->loop->nextTick(function() {
+        $this->loop->futureTick(function() {
             RequestEvents::emitBefore($this->transaction);
 
             $request = $this->setupRequest();
@@ -276,7 +276,7 @@ class Request
             );
             $this->transaction->setResponse($response);
 
-            $this->loop->nextTick(function() use ($response) {
+            $this->loop->futureTick(function() use ($response) {
                 try {
                     RequestEvents::emitComplete($this->transaction);
                     $this->deferred->resolve($response);
