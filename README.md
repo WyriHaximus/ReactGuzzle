@@ -59,6 +59,10 @@ $loop->run();
 
 See the [examples](https://github.com/WyriHaximus/ReactGuzzle/tree/master/examples) directory for more ways to use this adapter.
 
+## Note about save_to ##
+
+File I/O in react is blocking and doesn't always play well with certain event loops. So use `save_to` with caution as it will have a less then optimal performance.
+
 ## License ##
 
 Copyright 2014 [Cees-Jan Kiewiet](http://wyrihaximus.net/)
