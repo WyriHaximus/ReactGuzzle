@@ -87,12 +87,14 @@ class Request
      */
     protected $connectionTimedOut = false;
 
-    /**
-     * @param ReactHttpClient $httpClient
-     * @param LoopInterface $loop
-     * @param ProgressInterface $progress
-     */
-    public function __construct(ReactHttpClient $httpClient, LoopInterface $loop, ProgressInterface $progress = null) {
+	/**
+	 * @param TransactionInterface $transaction
+	 * @param ReactHttpClient $httpClient
+	 * @param LoopInterface $loop
+	 * @param ProgressInterface $progress
+	 */
+	public function __construct(TransactionInterface $transaction, ReactHttpClient $httpClient, LoopInterface $loop, ProgressInterface $progress = null) {
+		$this->transaction = $transaction;
         $this->httpClient = $httpClient;
         $this->loop = $loop;
         $this->messageFactory = new MessageFactory();
@@ -104,13 +106,10 @@ class Request
         }
     }
 
-    /**
-     * @param TransactionInterface $transaction
-     *
-     * @return \React\Promise\Promise
-     */
-    public function send(TransactionInterface $transaction) {
-        $this->transaction = $transaction;
+	/**
+	 * @return \React\Promise\Promise
+	 */
+	public function send() {
         $this->deferred = new Deferred();
 
         $this->loop->futureTick(function() {

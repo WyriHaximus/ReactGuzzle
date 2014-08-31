@@ -10,6 +10,8 @@
  */
 namespace WyriHaximus\React\Tests\Guzzle;
 
+use WyriHaximus\React\Guzzle\HttpClientAdapter;
+
 /**
  * Class HttpClientAdapterTest
  *
@@ -20,6 +22,7 @@ class HttpClientAdapterTest extends \PHPUnit_Framework_TestCase {
     public function setUp() {
         parent::setUp();
 
+		$this->transaction = \Mockery::mock('GuzzleHttp\Adapter\TransactionInterface');
         $this->loop = \Mockery::mock('React\EventLoop\StreamSelectLoop');
         $this->requestFactory = \Mockery::mock('WyriHaximus\React\Guzzle\HttpClient\RequestFactory');
         $this->httpClient = \Mockery::mock('React\HttpClient\Client', [
@@ -27,11 +30,12 @@ class HttpClientAdapterTest extends \PHPUnit_Framework_TestCase {
             \Mockery::mock('React\SocketClient\ConnectorInterface'),
         ]);
         $this->request = \Mockery::mock('WyriHaximus\React\Guzzle\HttpClient\Request', [
-            $this->httpClient,
+			$this->transaction,
+			$this->httpClient,
             $this->loop,
         ]);
 
-        $this->adapter = new \WyriHaximus\React\Guzzle\HttpClientAdapter($this->loop, $this->httpClient, null, $this->requestFactory);
+        $this->adapter = new HttpClientAdapter($this->loop, $this->httpClient, null, $this->requestFactory);
     }
     
     public function tearDown() {
@@ -49,7 +53,7 @@ class HttpClientAdapterTest extends \PHPUnit_Framework_TestCase {
 
         $this->request->shouldReceive('send')
             ->once();
-        $this->adapter->send(\Mockery::mock('GuzzleHttp\Adapter\TransactionInterface'));
+        $this->adapter->send($this->transaction);
     }
     
     public function testSetDnsResolver() {
