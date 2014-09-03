@@ -10,6 +10,7 @@
  */
 namespace WyriHaximus\React\Tests\Guzzle\HttpClient;
 
+use Phake;
 use WyriHaximus\React\Guzzle\HttpClient\RequestFactory;
 
 /**
@@ -19,7 +20,9 @@ use WyriHaximus\React\Guzzle\HttpClient\RequestFactory;
  */
 class RequestFactoryTest extends \PHPUnit_Framework_TestCase {
 
-    public function setUp() {
+    protected $requestFactory;
+
+	public function setUp() {
         parent::setUp();
 
         $this->requestFactory = new RequestFactory();
@@ -32,10 +35,14 @@ class RequestFactoryTest extends \PHPUnit_Framework_TestCase {
     }
 
     public function testCreate() {
-        $this->assertInstanceOf('WyriHaximus\React\Guzzle\HttpClient\Request', $this->requestFactory->create(\Mockery::mock('React\HttpClient\Client', [
-            \Mockery::mock('React\SocketClient\ConnectorInterface'),
-            \Mockery::mock('React\SocketClient\ConnectorInterface'),
-        ]), \Mockery::mock('\React\EventLoop\StreamSelectLoop')));
+        $this->assertInstanceOf('WyriHaximus\React\Guzzle\HttpClient\Request', $this->requestFactory->create(
+			Phake::mock('GuzzleHttp\Adapter\TransactionInterface'),
+			Phake::partialMock('React\HttpClient\Client',
+				Phake::mock('React\SocketClient\ConnectorInterface'),
+				Phake::mock('React\SocketClient\ConnectorInterface')
+			),
+			Phake::mock('\React\EventLoop\StreamSelectLoop')
+		));
     }
     
 }

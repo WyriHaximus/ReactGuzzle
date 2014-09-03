@@ -10,103 +10,39 @@
  */
 namespace WyriHaximus\React\Tests\Guzzle\HttpClient;
 
+use Phake;
+
 /**
  * Class RequestTest
  * @package WyriHaximus\React\Tests\Guzzle\HttpClient
  */
 class RequestTest extends \PHPUnit_Framework_TestCase {
 
-    public function setUp() {
-        parent::setUp();
+	public function testSetConnectionTimeout() {
+		$config = Phake::mock('GuzzleHttp\Collection');
 
-        $loop = \Mockery::mock('\React\EventLoop\StreamSelectLoop');
-        $loop->shouldReceive('futureTick')
-            ->withAnyArgs()
-            ->atLeast(2)
-            ->andReturn(\Mockery::on(function($callback) {
-                $callback();
-                return null;
-            }));
+		$requestInterface = Phake::mock('GuzzleHttp\Message\RequestInterface');
+		Phake::when($requestInterface)->getConfig()->thenReturn([
+			'connect_timeout' => 1,
+		]);
 
-        $this->httpClient = \Mockery::mock('React\HttpClient\Client', [
-            \Mockery::mock('React\SocketClient\ConnectorInterface'),
-            \Mockery::mock('React\SocketClient\ConnectorInterface'),
-        ]);
-        $this->request = new \WyriHaximus\React\Guzzle\HttpClient\Request($this->httpClient, $loop);
-        
-        $headersGuzzle = [
-            'X-Guzzle' => [
-                'React',
-                'HttpClient',
-            ],
-        ];
-        $headers = [
-            'X-Guzzle' => 'React, HttpClient',
-        ];
-        $method = \GuzzleHttp\Message\RequestInterface::GET;
-        $url = 'http://example.com/';
+		$transaction = Phake::mock('GuzzleHttp\Adapter\TransactionInterface');
+		Phake::when($transaction)->getRequest()->thenReturn($requestInterface);
 
-        $deferred = new \React\Promise\Deferred();
+		$loop = Phake::mock('React\EventLoop\LoopInterface');
+		Phake::when($loop)->addTimer($this->isType('int'), $this->isType('callable'))->thenReturn(true);
 
-        $connector = \Mockery::mock('React\SocketClient\ConnectorInterface');
-        $connector->shouldReceive('create')
-            ->andReturn($deferred->promise());
+		$client = Phake::mock('React\HttpClient\Client');
+		$request = Phake::partialMock('WyriHaximus\React\Guzzle\HttpClient\Request', $transaction, $client, $loop);
 
-        $httpRequest = \Mockery::mock('React\HttpClient\Request', [
-            $connector,
-            \Mockery::mock('React\HttpClient\RequestData', [
-                $method,
-                $url,
-                $headers,
-            ]),
-        ]);
-        $httpRequest->shouldReceive('on');
-        $httpRequest->shouldReceive('end');
+		$httpClientRequest = Phake::mock('React\HttpClient\Request');
+		$request->setConnectionTimeout($httpClientRequest);
 
-        $this->httpClient->shouldReceive('request')
-            ->with($method, $url, $headers)
-            ->andReturn($httpRequest)
-            ->once();
-
-        $request = \Mockery::mock('GuzzleHttp\Message\RequestInterface');
-        $request->shouldReceive('getHeaders')
-            ->with()
-            ->andReturn($headersGuzzle)
-            ->once();
-        $request->shouldReceive('getMethod')
-            ->with()
-            ->andReturn($method)
-            ->once();
-        $request->shouldReceive('getUrl')
-            ->with()
-            ->andReturn($url)
-            ->once();
-        $request->shouldReceive('getHeader')
-            ->with('X-Guzzle')
-            ->andReturn($headers['X-Guzzle'])
-            ->once();
-        $request->shouldReceive('getConfig');
-        $emitter = \Mockery::mock('GuzzleHttp\Event\EmitterInterface');
-        $emitter->shouldReceive('emit');
-        $request->shouldReceive('getEmitter')
-            ->with()
-            ->andReturn($emitter)
-            ->once();
-
-        $this->transaction = \Mockery::mock('GuzzleHttp\Adapter\TransactionInterface');
-        $this->transaction->shouldReceive('getRequest')
-            ->with()
-            ->andReturn($request);
-    }
-    
-    public function tearDown() {
-        parent::tearDown();
-        
-        unset($this->httpClient, $this->request);
-    }
-
-    public function testSend() {
-        $this->request->send($this->transaction);
-    }
+		Phake::inOrder(
+			Phake::verify($transaction, Phake::times(2))->getRequest(),
+			Phake::verify($requestInterface, Phake::times(2))->getConfig(),
+			Phake::verify($loop)->addTimer($this->isType('int'), $this->isType('callable'))
+		);
+	}
     
 }

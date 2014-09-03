@@ -10,6 +10,8 @@
  */
 namespace WyriHaximus\React\Tests\Guzzle\HttpClient;
 
+use Phake;
+
 /**
  * Class ProgressTest
  * @package WyriHaximus\React\Tests\Guzzle\HttpClient
@@ -78,12 +80,12 @@ class ProgressTest extends \PHPUnit_Framework_TestCase {
      * @dataProvider onResponseProvider
      */
     public function testOnResponse($headers, $expectedLength) {
-        $httpResponse = \Mockery::mock('React\HttpClient\Response');
-        $httpResponse->shouldReceive('getHeaders')
-            ->once()
-            ->andReturn($headers);
+        $httpResponse = Phake::mock('React\HttpClient\Response');
+		Phake::when($httpResponse)->getHeaders()->thenReturn($headers);
 
-        $this->progress->onResponse($httpResponse);
+		$this->progress->onResponse($httpResponse);
+
+		Phake::verify($httpResponse, Phake::times(1))->getHeaders();
         $this->assertSame($httpResponse, $this->progress['response']);
         $this->assertSame($expectedLength, $this->progress['fullSize']);
     }
@@ -113,13 +115,12 @@ class ProgressTest extends \PHPUnit_Framework_TestCase {
      * @dataProvider isFullSizeKnownProvider
      */
     public function testIsFullSizeKnown($expectedResult, $headers) {
-        $response = \Mockery::mock('React\HttpClient\Response');
+        $response = Phake::mock('React\HttpClient\Response');
+		Phake::when($response)->getHeaders()->thenReturn($headers);
 
-        $response->shouldReceive('getHeaders')
-            ->with()
-            ->andReturn($headers)
-            ->once();
-        $this->progress->onResponse($response);
+		$this->progress->onResponse($response);
+
+		Phake::verify($response, Phake::times(1))->getHeaders();
         $this->assertSame($expectedResult, $this->progress->isFullSizeKnown());
     }
 
@@ -158,16 +159,15 @@ class ProgressTest extends \PHPUnit_Framework_TestCase {
      * @dataProvider getCompletePercentageProvider
      */
     public function testGetCompletePercentage($expectedResult, $headers, $dataChunk) {
-        $response = \Mockery::mock('React\HttpClient\Response');
+        $response = Phake::mock('React\HttpClient\Response');
+		Phake::when($response)->getHeaders()->thenReturn($headers);
 
-        $response->shouldReceive('getHeaders')
-            ->with()
-            ->andReturn($headers)
-            ->once();
         $this->assertSame($expectedResult, substr($this->progress
                 ->onResponse($response)
                 ->onData($dataChunk)
                 ->getCompletePercentage(), 0, 5));
+
+		Phake::verify($response, Phake::times(1))->getHeaders();
     }
 
 }
