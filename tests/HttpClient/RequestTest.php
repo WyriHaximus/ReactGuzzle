@@ -19,8 +19,6 @@ use Phake;
 class RequestTest extends \PHPUnit_Framework_TestCase {
 
 	public function testSetConnectionTimeout() {
-		$config = Phake::mock('GuzzleHttp\Collection');
-
 		$requestInterface = Phake::mock('GuzzleHttp\Message\RequestInterface');
 		Phake::when($requestInterface)->getConfig()->thenReturn([
 			'connect_timeout' => 1,
