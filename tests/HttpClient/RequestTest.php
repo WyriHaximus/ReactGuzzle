@@ -42,5 +42,30 @@ class RequestTest extends \PHPUnit_Framework_TestCase {
 			Phake::verify($loop)->addTimer($this->isType('int'), $this->isType('callable'))
 		);
 	}
+
+	public function testSetRequestTimeout() {
+		$requestInterface = Phake::mock('GuzzleHttp\Message\RequestInterface');
+		Phake::when($requestInterface)->getConfig()->thenReturn([
+			'timeout' => 1,
+		]);
+
+		$transaction = Phake::mock('GuzzleHttp\Adapter\TransactionInterface');
+		Phake::when($transaction)->getRequest()->thenReturn($requestInterface);
+
+		$loop = Phake::mock('React\EventLoop\LoopInterface');
+		Phake::when($loop)->addTimer($this->isType('int'), $this->isType('callable'))->thenReturn(true);
+
+		$client = Phake::mock('React\HttpClient\Client');
+		$request = Phake::partialMock('WyriHaximus\React\Guzzle\HttpClient\Request', $transaction, $client, $loop);
+
+		$httpClientRequest = Phake::mock('React\HttpClient\Request');
+		$request->setRequestTimeout($httpClientRequest);
+
+		Phake::inOrder(
+			Phake::verify($transaction, Phake::times(2))->getRequest(),
+			Phake::verify($requestInterface, Phake::times(2))->getConfig(),
+			Phake::verify($loop)->addTimer($this->isType('int'), $this->isType('callable'))
+		);
+	}
     
 }
