@@ -18,6 +18,22 @@ use Phake;
  */
 class RequestTest extends \PHPUnit_Framework_TestCase {
 
+	public function testSend() {
+		$requestInterface = Phake::mock('GuzzleHttp\Message\RequestInterface');
+
+		$transaction = Phake::mock('GuzzleHttp\Adapter\TransactionInterface');
+		Phake::when($transaction)->getRequest()->thenReturn($requestInterface);
+
+		$loop = Phake::mock('React\EventLoop\LoopInterface');
+
+		$client = Phake::mock('React\HttpClient\Client');
+		$request = Phake::partialMock('WyriHaximus\React\Guzzle\HttpClient\Request', $transaction, $client, $loop);
+
+		$this->assertInstanceOf('React\Promise\PromiseInterface', $request->send());
+
+		Phake::verify($loop)->futureTick($this->isType('callable'));
+	}
+
 	public function testSetConnectionTimeout() {
 		$requestInterface = Phake::mock('GuzzleHttp\Message\RequestInterface');
 		Phake::when($requestInterface)->getConfig()->thenReturn([
