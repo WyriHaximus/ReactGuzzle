@@ -9,7 +9,6 @@ tools:
     php_code_sniffer:
         extensions:
             - php
-        command: ~
         enabled: true
         config:
             tab_width: 0
@@ -19,11 +18,7 @@ tools:
     php_mess_detector:
         extensions:
             - php
-        command:              ~
-        enabled:              true
-        filter:
-            paths:                []
-            excluded_paths:       []
+        enabled: true
         config:
             ruleset:              ~
             code_size_rules:
