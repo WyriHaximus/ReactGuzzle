@@ -21,7 +21,8 @@ use React\HttpClient\Client as HttpClient;
  */
 class RequestFactory
 {
-    public function create(TransactionInterface $transaction, HttpClient $httpClient, LoopInterface $loop) {
+    public function create(TransactionInterface $transaction, HttpClient $httpClient, LoopInterface $loop)
+    {
         return new Request($transaction, $httpClient, $loop);
     }
 }

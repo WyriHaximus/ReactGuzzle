@@ -27,14 +27,16 @@ class Progress implements ProgressInterface, \ArrayAccess
     /**
      * @return bool
      */
-    public function isFullSizeKnown() {
+    public function isFullSizeKnown()
+    {
         return !($this->fullSize === null);
     }
 
     /**
      * @return float|int
      */
-    public function getCompletePercentage() {
+    public function getCompletePercentage()
+    {
         if (!$this->isFullSizeKnown() || $this->currentSize == 0) {
             return 0;
         }
@@ -47,7 +49,8 @@ class Progress implements ProgressInterface, \ArrayAccess
      * @param $eventName
      * @return $this
      */
-    public function setEvent($eventName) {
+    public function setEvent($eventName)
+    {
         $this->event = $eventName;
 
         return $this;
@@ -57,7 +60,8 @@ class Progress implements ProgressInterface, \ArrayAccess
      * @param HttpResponse $response
      * @return $this
      */
-    public function onResponse(HttpResponse $response) {
+    public function onResponse(HttpResponse $response)
+    {
         $this->response = $response;
         $headers = $this->response->getHeaders();
         if (isset($headers['Content-Length'])) {
@@ -71,7 +75,8 @@ class Progress implements ProgressInterface, \ArrayAccess
      * @param string $data
      * @return $this
      */
-    public function onData($data) {
+    public function onData($data)
+    {
         $this->data = $data;
         $this->currentSize += strlen($this->data);
 
@@ -86,7 +91,8 @@ class Progress implements ProgressInterface, \ArrayAccess
      * @param mixed $offset
      * @return bool
      */
-    public function offsetExists($offset) {
+    public function offsetExists($offset)
+    {
         if (in_array($offset, [
             'event',
             'response',
@@ -104,7 +110,8 @@ class Progress implements ProgressInterface, \ArrayAccess
      * @param mixed $offset
      * @return null|mixed
      */
-    public function offsetGet($offset) {
+    public function offsetGet($offset)
+    {
         if ($this->offsetExists($offset)) {
             return $this->{$offset};
         }
