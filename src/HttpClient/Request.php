@@ -31,12 +31,12 @@ class Request
      * @var ReactHttpClient
      */
     protected $httpClient;
-    
+
     /**
      * @var LoopInterface
      */
     protected $loop;
-    
+
     /**
      * @var HttpResponse
      */
@@ -56,7 +56,7 @@ class Request
      * @var \Exception
      */
     protected $error = '';
-    
+
     /**
      * @var \React\EventLoop\Timer\TimerInterface
      */
@@ -87,14 +87,15 @@ class Request
      */
     protected $connectionTimedOut = false;
 
-	/**
-	 * @param TransactionInterface $transaction
-	 * @param ReactHttpClient $httpClient
-	 * @param LoopInterface $loop
-	 * @param ProgressInterface $progress
-	 */
-	public function __construct(TransactionInterface $transaction, ReactHttpClient $httpClient, LoopInterface $loop, ProgressInterface $progress = null) {
-		$this->transaction = $transaction;
+    /**
+     * @param TransactionInterface $transaction
+     * @param ReactHttpClient $httpClient
+     * @param LoopInterface $loop
+     * @param ProgressInterface $progress
+     */
+    public function __construct(TransactionInterface $transaction, ReactHttpClient $httpClient, LoopInterface $loop, ProgressInterface $progress = null)
+    {
+        $this->transaction = $transaction;
         $this->httpClient = $httpClient;
         $this->loop = $loop;
         $this->messageFactory = new MessageFactory();
@@ -106,13 +107,14 @@ class Request
         }
     }
 
-	/**
-	 * @return \React\Promise\Promise
-	 */
-	public function send() {
+    /**
+     * @return \React\Promise\Promise
+     */
+    public function send()
+    {
         $this->deferred = new Deferred();
 
-        $this->loop->futureTick(function() {
+        $this->loop->futureTick(function () {
             RequestEvents::emitBefore($this->transaction);
 
             $request = $this->setupRequest();
@@ -173,9 +175,10 @@ class Request
     /**
      * @param HttpRequest $request
      */
-    public function setConnectionTimeout(HttpRequest $request) {
+    public function setConnectionTimeout(HttpRequest $request)
+    {
         if ($this->transaction->getRequest()->getConfig()['connect_timeout']) {
-            $this->connectionTimer = $this->loop->addTimer($this->transaction->getRequest()->getConfig()['connect_timeout'], function() use ($request) {
+            $this->connectionTimer = $this->loop->addTimer($this->transaction->getRequest()->getConfig()['connect_timeout'], function () use ($request) {
                 $request->closeError(new \Exception('Connection time out'));
             });
         }
@@ -184,15 +187,17 @@ class Request
     /**
      * @param HttpRequest $request
      */
-    public function setRequestTimeout(HttpRequest $request) {
+    public function setRequestTimeout(HttpRequest $request)
+    {
         if ($this->transaction->getRequest()->getConfig()['timeout']) {
-            $this->requestTimer = $this->loop->addTimer($this->transaction->getRequest()->getConfig()['timeout'], function() use ($request) {
+            $this->requestTimer = $this->loop->addTimer($this->transaction->getRequest()->getConfig()['timeout'], function () use ($request) {
                 $request->close(new \Exception('Transaction time out'));
             });
         }
     }
 
-    protected function onHeadersWritten() {
+    protected function onHeadersWritten()
+    {
         if ($this->connectionTimer !== null) {
             $this->loop->cancelTimer($this->connectionTimer);
         }
@@ -201,7 +206,8 @@ class Request
     /**
      * @param HttpResponse $response
      */
-    protected function onResponse(HttpResponse $response) {
+    protected function onResponse(HttpResponse $response)
+    {
         $config = $this->transaction->getRequest()->getConfig();
         if (!empty($config['save_to'])) {
             $this->saveTo($response);
@@ -222,27 +228,29 @@ class Request
     /**
      * @param HttpResponse $response
      */
-    protected function saveTo(HttpResponse $response) {
+    protected function saveTo(HttpResponse $response)
+    {
         $saveTo = $this->transaction->getRequest()->getConfig()['save_to'];
 
         $writeStream = fopen($saveTo, 'w');
         stream_set_blocking($writeStream, 0);
         $saveToStream = new Stream($writeStream, $this->loop);
-        
+
         $saveToStream->on(
             'end',
             function () {
                 $this->onEnd();
             }
         );
-        
+
         $response->pipe($saveToStream);
     }
 
     /**
      * @param string $data
      */
-    protected function onData($data) {
+    protected function onData($data)
+    {
         if (!$this->transaction->getRequest()->getConfig()['stream']) {
             $this->buffer .= $data;
         }
@@ -253,18 +261,20 @@ class Request
     /**
      * @param \Exception $error
      */
-    protected function onError(\Exception $error) {
+    protected function onError(\Exception $error)
+    {
         $this->error = $error;
     }
 
     /**
      *
      */
-    protected function onEnd() {
+    protected function onEnd()
+    {
         if ($this->requestTimer !== null) {
             $this->loop->cancelTimer($this->requestTimer);
         }
-        
+
         if ($this->httpResponse === null) {
             $this->deferred->reject($this->error);
         } else {
@@ -275,7 +285,7 @@ class Request
             );
             $this->transaction->setResponse($response);
 
-            $this->loop->futureTick(function() use ($response) {
+            $this->loop->futureTick(function () use ($response) {
                 try {
                     RequestEvents::emitComplete($this->transaction);
                     $this->deferred->resolve($response);
