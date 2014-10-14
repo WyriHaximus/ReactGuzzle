@@ -7,7 +7,7 @@ ReactGuzzle
 [![Coverage Status](https://coveralls.io/repos/WyriHaximus/ReactGuzzle/badge.png)](https://coveralls.io/r/WyriHaximus/ReactGuzzle)
 [![License](https://poser.pugx.org/wyrihaximus/react-guzzle/license.png)](https://packagist.org/packages/wyrihaximus/react-guzzle)
 
-ReactPHP HttpClient Adapter for Guzzle
+ReactPHP HttpClient Adapter for Guzzle4, for Guzzle5 check [ReactGuzzleRing](https://github.com/WyriHaximus/ReactGuzzleRing)
 
 ## Current state ##
 
