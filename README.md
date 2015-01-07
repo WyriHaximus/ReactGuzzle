@@ -16,14 +16,10 @@ This adapter is in active development and is subject to change at any given time
 
 ## Installation ##
 
-Installation is easy with composer just run `composer require wyrihaximus/react-guzzle:dev-master` or add ReactGuzzle to your composer.json.
+To install via [Composer](http://getcomposer.org/), use the command below, it will automatically detect the latest version and bind it with `~`.
 
-```json
-{
-	"require": {
-		"wyrihaximus/react-guzzle": "dev-master"
-	}
-}
+```
+composer require wyrihaximus/react-guzzle 
 ```
 
 ## Basic Usage ##
