@@ -16,7 +16,7 @@
     "require-dev": {
         "satooshi/php-coveralls": "~0.6",
         "phpunit/phpunit": "~4.0",
-        "phake/phake": "1.0.*"
+        "phake/phake": "~1.0"
     },
     "suggest": {
         "guzzlehttp/oauth-subscriber": "0.1.* needed for oauth example"
