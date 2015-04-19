@@ -95,5 +95,4 @@ class HttpClientAdapterTest extends \PHPUnit_Framework_TestCase {
         $this->adapter->setRequestFactory($mock);
         $this->assertSame($mock, $this->adapter->getRequestFactory());
     }
-
 }

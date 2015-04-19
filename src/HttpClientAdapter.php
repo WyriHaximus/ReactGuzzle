@@ -10,6 +10,7 @@
  */
 namespace WyriHaximus\React\Guzzle;
 
+use GuzzleHttp\Message\Response;
 use GuzzleHttp\Adapter\AdapterInterface;
 use GuzzleHttp\Adapter\TransactionInterface;
 use React\Dns\Resolver\Factory as DnsFactory;
@@ -132,6 +133,26 @@ class HttpClientAdapter implements AdapterInterface
      */
     public function send(TransactionInterface $transaction)
     {
-        return $this->requestFactory->create($transaction, $this->httpClient, $this->loop)->send();
+        return $this->requestFactory->create(static::transformRequest($transaction), $this->httpClient, $this->loop)->then(function (array $response) {
+            return \React\Promise\resolve(static::transformResponse($response));
+        });
+    }
+
+    protected static function transformRequest(TransactionInterface $transaction)
+    {
+        return [
+            'http_method' => $transaction->getRequest()->getMethod(),
+            'url' => $transaction->getRequest()->getUrl(),
+            'headers' => $transaction->getRequest()->getHeaders(),
+            'body' => $transaction->getRequest()->getBody(),
+            'client' => [
+                'stream' => false,
+            ],
+        ];
+    }
+
+    protected static function transformResponse(array $response)
+    {
+        return new Response($response['status'], $response['headers'], $response['body']);
     }
 }
