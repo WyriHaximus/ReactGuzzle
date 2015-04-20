@@ -11,6 +11,7 @@
 namespace WyriHaximus\React\Tests\Guzzle;
 
 use Phake;
+use React\Promise\FulfilledPromise;
 use WyriHaximus\React\Guzzle\HttpClientAdapter;
 
 /**
@@ -30,18 +31,23 @@ class HttpClientAdapterTest extends \PHPUnit_Framework_TestCase {
     public function setUp() {
         parent::setUp();
 
-		$this->transaction = Phake::mock('GuzzleHttp\Adapter\TransactionInterface');
+        $this->httpClient = Phake::partialMock('React\HttpClient\Client',
+            Phake::mock('React\SocketClient\ConnectorInterface'),
+            Phake::mock('React\SocketClient\ConnectorInterface')
+        );
+
         $this->loop = Phake::mock('React\EventLoop\StreamSelectLoop');
         $this->requestFactory = Phake::mock('WyriHaximus\React\Guzzle\HttpClient\RequestFactory');
-        $this->httpClient = Phake::partialMock('React\HttpClient\Client',
-			Phake::mock('React\SocketClient\ConnectorInterface'),
-			Phake::mock('React\SocketClient\ConnectorInterface')
-        );
+
         $this->request = Phake::partialMock('WyriHaximus\React\Guzzle\HttpClient\Request',
-			$this->transaction,
-			$this->httpClient,
+            [],
+            $this->httpClient,
             $this->loop
         );
+
+        $guzzleRequest = Phake::mock('GuzzleHttp\Message\RequestInterface');
+		$this->transaction = Phake::mock('GuzzleHttp\Adapter\TransactionInterface');
+        Phake::when($this->transaction)->getRequest()->thenReturn($guzzleRequest);
 
         $this->adapter = new HttpClientAdapter($this->loop, $this->httpClient, null, $this->requestFactory);
     }
@@ -49,17 +55,16 @@ class HttpClientAdapterTest extends \PHPUnit_Framework_TestCase {
     public function tearDown() {
         parent::tearDown();
         
-        unset($this->adapter, $this->request, $this->httpClient, $this->requestFactory, $this->loop);
+        unset($this->adapter, $this->request, $this->httpClient, $this->requestFactory, $this->loop, $this->transaction);
     }
     
     public function testSend() {
-		Phake::when($this->requestFactory)->create($this->transaction, $this->httpClient, $this->loop)->thenReturn($this->request);
+		Phake::when($this->requestFactory)->create($this->isType('array'), $this->httpClient, $this->loop)->thenReturn(new FulfilledPromise());
 
         $this->adapter->send($this->transaction);
 
 		Phake::inOrder(
-			Phake::verify($this->requestFactory, Phake::times(1))->create($this->transaction, $this->httpClient, $this->loop),
-			Phake::verify($this->request, Phake::times(1))->send()
+			Phake::verify($this->requestFactory, Phake::times(1))->create($this->isType('array'), $this->httpClient, $this->loop)
 		);
     }
     
