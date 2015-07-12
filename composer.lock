@@ -1,10 +1,10 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "d8092607bc374f8f2143e1982573fb84",
+    "hash": "72519982281aac548730ff002d605ef4",
     "packages": [
         {
             "name": "evenement/evenement",
@@ -677,7 +677,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/WyriHaximus/react-guzzle-http-client/zipball/30a9073816f79897ff04f718cbd0fdf48b37d5f1",
+                "url": "https://api.github.com/repos/WyriHaximus/react-guzzle-http-client/zipball/067ac798ccf648c52a8708cad0dcfde56cb6260b",
                 "reference": "30a9073816f79897ff04f718cbd0fdf48b37d5f1",
                 "shasum": ""
             },
