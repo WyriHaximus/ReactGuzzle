@@ -1,5 +1,6 @@
 language: php
 
+## PHP versions we test against
 php:
   - 5.4
   - 5.5
@@ -7,14 +8,40 @@ php:
   - hhvm
   - hhvm-nightly
 
+## Build matrix for lowest and highest possible targets
 matrix:
-  allow_failures:
-    - php: hhvm-nightly
+  include:
+    - php: 5.4
+      env: dependencies=lowest
+    - php: 5.5
+      env: dependencies=lowest
+    - php: 5.6
+      env: dependencies=lowest
+    - php: 7
+      env: dependencies=lowest
+    - php: hhvm
+      env: dependencies=lowest
+    - php: 5.4
+      env: dependencies=highest
+    - php: 5.5
+      env: dependencies=highest
+    - php: 5.6
+      env: dependencies=highest
+    - php: 7
+      env: dependencies=highest
+    - php: hhvm
+      env: dependencies=highest
 
+## Update composer and run the appropriate composer command
 before_script:
-  - composer self-update
-  - composer install
+  - composer self-update -q
+  - if [ -z "$dependencies" ]; then composer install; fi;
+  - if [ "$dependencies" = "lowest" ]; then composer update --prefer-lowest -n; fi;
+  - if [ "$dependencies" = "highest" ]; then composer update -n; fi;
+  - composer show -i
 
+## Run the actual test
+script: php vendor/bin/phpunit --coverage-text --coverage-clover ./build/logs/clover.xml
 script: make travis
 
 after_script: make travis-coverage
@@ -26,3 +53,5 @@ notifications:
     on_success: always
     on_failure: always
     on_start: true
+
+after_script: sh -c " if [ -f ./build/logs/clover.xml ]; then php vendor/bin/coveralls; fi"
