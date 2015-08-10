@@ -55,8 +55,12 @@ class HttpClientAdapter implements AdapterInterface
      * @param HttpClient $httpClient
      * @param DnsResolver $dnsResolver
      */
-    public function __construct(LoopInterface $loop, HttpClient $httpClient = null, DnsResolver $dnsResolver = null, RequestFactory $requestFactory = null)
-    {
+    public function __construct(
+        LoopInterface $loop,
+        HttpClient $httpClient = null,
+        DnsResolver $dnsResolver = null,
+        RequestFactory $requestFactory = null
+    ) {
         $this->loop = $loop;
 
         $this->setDnsResolver($dnsResolver);
@@ -135,7 +139,12 @@ class HttpClientAdapter implements AdapterInterface
      */
     public function send(TransactionInterface $transaction)
     {
-        return $this->requestFactory->create(static::transformRequest($transaction), [], $this->httpClient, $this->loop)->then(function (ResponseInterface $response) {
+        return $this->requestFactory->create(
+            static::transformRequest($transaction),
+            [],
+            $this->httpClient,
+            $this->loop
+        )->then(function (ResponseInterface $response) {
             return \React\Promise\resolve(static::transformResponse($response));
         });
     }
