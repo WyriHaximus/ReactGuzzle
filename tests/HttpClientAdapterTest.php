@@ -40,12 +40,18 @@ class HttpClientAdapterTest extends \PHPUnit_Framework_TestCase {
         $this->requestFactory = Phake::mock('WyriHaximus\React\Guzzle\HttpClient\RequestFactory');
 
         $this->request = Phake::partialMock('WyriHaximus\React\Guzzle\HttpClient\Request',
+            Phake::mock('Psr\Http\Message\RequestInterface'),
             [],
             $this->httpClient,
             $this->loop
         );
 
         $guzzleRequest = Phake::mock('GuzzleHttp\Message\RequestInterface');
+        Phake::when($guzzleRequest)->getMethod()->thenReturn('GET');
+        Phake::when($guzzleRequest)->getUrl()->thenReturn('http://example.com/');
+        Phake::when($guzzleRequest)->getHeaders()->thenReturn([]);
+        Phake::when($guzzleRequest)->getBody()->thenReturn('abc');
+        Phake::when($guzzleRequest)->getProtocolVersion()->thenReturn('1.1');
 		$this->transaction = Phake::mock('GuzzleHttp\Adapter\TransactionInterface');
         Phake::when($this->transaction)->getRequest()->thenReturn($guzzleRequest);
 
@@ -59,12 +65,12 @@ class HttpClientAdapterTest extends \PHPUnit_Framework_TestCase {
     }
     
     public function testSend() {
-		Phake::when($this->requestFactory)->create($this->isType('array'), $this->httpClient, $this->loop)->thenReturn(new FulfilledPromise());
+		Phake::when($this->requestFactory)->create($this->isInstanceOf('Psr\Http\Message\RequestInterface'), $this->isType('array'), $this->httpClient, $this->loop)->thenReturn(new FulfilledPromise());
 
         $this->adapter->send($this->transaction);
 
 		Phake::inOrder(
-			Phake::verify($this->requestFactory, Phake::times(1))->create($this->isType('array'), $this->httpClient, $this->loop)
+			Phake::verify($this->requestFactory, Phake::times(1))->create($this->isInstanceOf('Psr\Http\Message\RequestInterface'), $this->isType('array'), $this->httpClient, $this->loop)
 		);
     }
     

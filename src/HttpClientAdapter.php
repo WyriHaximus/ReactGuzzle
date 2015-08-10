@@ -13,6 +13,8 @@ namespace WyriHaximus\React\Guzzle;
 use GuzzleHttp\Message\Response;
 use GuzzleHttp\Adapter\AdapterInterface;
 use GuzzleHttp\Adapter\TransactionInterface;
+use GuzzleHttp\Psr7\Request;
+use Psr\Http\Message\ResponseInterface;
 use React\Dns\Resolver\Factory as DnsFactory;
 use React\Dns\Resolver\Resolver as DnsResolver;
 use React\EventLoop\LoopInterface;
@@ -133,26 +135,24 @@ class HttpClientAdapter implements AdapterInterface
      */
     public function send(TransactionInterface $transaction)
     {
-        return $this->requestFactory->create(static::transformRequest($transaction), $this->httpClient, $this->loop)->then(function (array $response) {
+        return $this->requestFactory->create(static::transformRequest($transaction), [], $this->httpClient, $this->loop)->then(function (ResponseInterface $response) {
             return \React\Promise\resolve(static::transformResponse($response));
         });
     }
 
     protected static function transformRequest(TransactionInterface $transaction)
     {
-        return [
-            'http_method' => $transaction->getRequest()->getMethod(),
-            'url' => $transaction->getRequest()->getUrl(),
-            'headers' => $transaction->getRequest()->getHeaders(),
-            'body' => $transaction->getRequest()->getBody(),
-            'client' => [
-                'stream' => false,
-            ],
-        ];
+        return new Request(
+            $transaction->getRequest()->getMethod(),
+            $transaction->getRequest()->getUrl(),
+            $transaction->getRequest()->getHeaders(),
+            $transaction->getRequest()->getBody(),
+            $transaction->getRequest()->getProtocolVersion()
+        );
     }
 
-    protected static function transformResponse(array $response)
+    protected static function transformResponse(ResponseInterface $response)
     {
-        return new Response($response['status'], $response['headers'], $response['body']);
+        return new Response($response->getStatusCode(), $response->getHeaders(), $response->getBody());
     }
 }
