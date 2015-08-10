@@ -18,7 +18,9 @@
     },
     "require-dev": {
         "phpunit/phpunit": "~4.0",
-        "phake/phake": "~1.0"
+        "phake/phake": "~1.0",
+        "squizlabs/php_codesniffer": "~1.5.0",
+        "vectorface/dunit": "~2.0"
     },
     "suggest": {
         "guzzlehttp/oauth-subscriber": "0.1.* needed for oauth example"
