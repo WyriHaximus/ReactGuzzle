@@ -65,7 +65,7 @@ class HttpClientAdapterTest extends \PHPUnit_Framework_TestCase {
     }
     
     public function testSend() {
-		Phake::when($this->requestFactory)->create($this->isInstanceOf('Psr\Http\Message\RequestInterface'), $this->isType('array'), $this->httpClient, $this->loop)->thenReturn(new FulfilledPromise());
+		Phake::when($this->requestFactory)->create($this->isInstanceOf('Psr\Http\Message\RequestInterface'), $this->isType('array'), $this->httpClient, $this->loop)->thenReturn(new FulfilledPromise(Phake::Mock('Psr\Http\Message\ResponseInterface')));
 
         $this->adapter->send($this->transaction);
 
