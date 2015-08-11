@@ -1,4 +1,4 @@
-all: cs dunit unit
+all: cs dunit dunit-nightly unit
 travis: cs unit-travis
 
 init:
@@ -15,6 +15,9 @@ unit-travis: init
 
 dunit: init
 	./vendor/bin/dunit
+
+dunit-nightly: init
+	./vendor/bin/dunit -c .dunitconfig-nightly
 
 travis-coverage: init
 	if [ -f ./build/logs/clover.xml ]; then wget https://scrutinizer-ci.com/ocular.phar && php ocular.phar code-coverage:upload --format=php-clover ./build/logs/clover.xml; fi
