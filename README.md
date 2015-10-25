@@ -9,11 +9,6 @@ ReactGuzzle
 
 ReactPHP HttpClient Adapter for Guzzle4, for Guzzle5 check [ReactGuzzleRing](https://github.com/WyriHaximus/ReactGuzzleRing) and Guzzle6 check [react-guzzle-psr7](https://github.com/WyriHaximus/react-guzzle-psr7)
 
-## Current state ##
-
-This adapter is in active development and is subject to change at any given time. Untill 0.1.0 is tagged, use with caution!
-
-
 ## Installation ##
 
 To install via [Composer](http://getcomposer.org/), use the command below, it will automatically detect the latest version and bind it with `~`.
