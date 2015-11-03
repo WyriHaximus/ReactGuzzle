@@ -12,9 +12,7 @@
     "require": {
         "php": "^5.4|^7.0",
         "guzzlehttp/guzzle": "~4.0",
-        "react/http-client": "^0.4.0",
-        "react/dns": "^0.4.1",
-        "wyrihaximus/react-guzzle-http-client": "^3.0.0",
+        "wyrihaximus/react-guzzle-http-client": "^3.0",
         "guzzlehttp/psr7": "^1.1"
     },
     "require-dev": {
